@@ -215,16 +215,5 @@ final class ToDoListTests: XCTestCase {
         XCTAssertNil(item, "Неправильный формат обязательных полей")
             
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
 
