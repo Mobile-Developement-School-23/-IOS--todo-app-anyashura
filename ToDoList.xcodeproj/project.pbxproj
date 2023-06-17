@@ -80,6 +80,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B50FA1D52A3D786000BCEB1C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B5AC0F862A35FBCF00B1FE5A /* TodoItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B50FA1D62A3D787D00BCEB1C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B5AC0F882A36062400B1FE5A /* FileCache.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		B5AC0F482A35FB5A00B1FE5A = {
 			isa = PBXGroup;
 			children = (
@@ -103,11 +119,11 @@
 		B5AC0F532A35FB5A00B1FE5A /* ToDoList */ = {
 			isa = PBXGroup;
 			children = (
+				B50FA1D62A3D787D00BCEB1C /* Services */,
+				B50FA1D52A3D786000BCEB1C /* Models */,
 				B5AC0F542A35FB5A00B1FE5A /* AppDelegate.swift */,
 				B5AC0F562A35FB5A00B1FE5A /* SceneDelegate.swift */,
 				B5AC0F582A35FB5A00B1FE5A /* ViewController.swift */,
-				B5AC0F862A35FBCF00B1FE5A /* TodoItem.swift */,
-				B5AC0F882A36062400B1FE5A /* FileCache.swift */,
 				B5AC0F5A2A35FB5A00B1FE5A /* Main.storyboard */,
 				B5AC0F5D2A35FB5B00B1FE5A /* Assets.xcassets */,
 				B5AC0F5F2A35FB5B00B1FE5A /* LaunchScreen.storyboard */,
