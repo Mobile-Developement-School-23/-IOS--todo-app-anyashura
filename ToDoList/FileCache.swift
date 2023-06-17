@@ -7,6 +7,7 @@
 
 import Foundation
 
+//MARK: - Protocol
 protocol FileCacheProtocol {
     func add(todoItem: TodoItem) throws
     func delete(todoItemID: String) throws

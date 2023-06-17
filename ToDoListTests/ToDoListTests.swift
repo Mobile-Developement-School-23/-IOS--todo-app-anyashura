@@ -11,7 +11,7 @@ import XCTest
 final class ToDoListTests: XCTestCase {
     
     //MARK: - Tests for TodoItem
-    //Сделала тесты только для TodoItem (это и просили в ТЗ)
+    //Сделала тесты только для TodoItem (в ТЗ написано только для этого)
     func testParsingJSONWithoutOptionals() throws {
         let json: [String:Any] =
         [
@@ -179,6 +179,7 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(json?[TodoItem.Constants.isDone] as? Bool, isDone)
         XCTAssertEqual(json?[TodoItem.Constants.dateCreated] as? Int, Int(dateCreated.timeIntervalSince1970))
     }
+    
     func testConvertStructToCsvWithSeparatorInName() {
         let item = TodoItem(
             id: "123",
@@ -213,7 +214,6 @@ final class ToDoListTests: XCTestCase {
         ]
         let item = TodoItem.parse(json: json)
         XCTAssertNil(item, "Неправильный формат обязательных полей")
-            
     }
 }
 
