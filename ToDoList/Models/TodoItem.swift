@@ -148,20 +148,6 @@ extension TodoItem {
     }
 }
 
-// convert Date to Int
-extension Date {
-    var timeStamp: Int {
-        Int(self.timeIntervalSince1970)
-    }
-}
-
-// convert Int to Date
-extension Int {
-    var dateFormat: Date? {
-        return Date(timeIntervalSince1970: Double(self))
-    }
-}
-
 // MARK: - Constants
 extension TodoItem {
     
