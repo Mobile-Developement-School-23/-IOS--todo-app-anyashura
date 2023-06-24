@@ -7,17 +7,6 @@
 
 import Foundation
 
-//MARK: - Protocol
-protocol FileCacheProtocol {
-    func add(todoItem: TodoItem) throws
-    func delete(todoItemID: String) throws
-    func update(todoItem: TodoItem) throws
-    func save(file: String) throws
-    func saveToSCV(file: String) throws
-    func loadFromCSV(file: String) throws
-    func load(file: String) throws
-}
-
 final class FileCache: FileCacheProtocol {
     // MARK: - Properties
     private (set) var todoItems = [TodoItem]()
@@ -109,6 +98,11 @@ final class FileCache: FileCacheProtocol {
         todoItems = jsonDict.compactMap { TodoItem.parse(json: $0) }
     }
     
+    func deleteFile(file: String) throws {
+        guard let fileURL = getURL(file: file) else { throw FileCacheErrors.invalidFileAccess }
+        try FileManager.default.removeItem(atPath: fileURL.path)
+    }
+    
     //get path to file
     private func getURL(file: String) -> URL? {
         let url = FileManager.default
@@ -117,36 +111,6 @@ final class FileCache: FileCacheProtocol {
             .appendingPathComponent(file, isDirectory: false)
         return url
     }
-}
-// MARK: - Enum with errors descriptions
-enum FileCacheErrors: LocalizedError {
-    case sameID(id: String)
-    case invalidJSON
-    case invalidFileAccess
-    case invalidJsonSerialization
-    case savingError
-    case invalidCSV
-    case loadingError
-    case noID
     
-    var errorDescription: String? {
-        switch self {
-        case .sameID(let id):
-            return "id \"\(id)\" уже существует"
-        case .invalidJSON:
-            return "Невалидный JSON"
-        case .invalidFileAccess:
-            return "Проблема с доступом к документам"
-        case .invalidJsonSerialization:
-            return "Проблема с серилизацией JSON"
-        case .savingError:
-            return "Не удается сохранить файл"
-        case .invalidCSV:
-            return "Невалидный файл CSV"
-        case .loadingError:
-            return "Проблема с загрузкой файла"
-        case .noID:
-            return "Задачи с таким ID не существует"
-        }
-    }
 }
+
