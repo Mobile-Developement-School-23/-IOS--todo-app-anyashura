@@ -318,21 +318,21 @@ class DetailViewController: UIViewController {
             do {
                 try fileCache.update(todoItem: todoItem)
             } catch {
-
+                print("Updating error")
             }
         } else {
             todoItem = TodoItem(text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
             do {
                 try fileCache.add(todoItem: todoItem)
             } catch {
-
+                print("Adding error")
             }
         }
         
         do {
             try fileCache.save(file: file)
         } catch {
-
+            print("Saving error")
         }
         delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
@@ -346,7 +346,7 @@ class DetailViewController: UIViewController {
         do {
             try fileCache.save(file: file)
         } catch {
-
+           print("Saving error")
         }
         delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)

@@ -65,7 +65,7 @@ final class TodoListViewController: UIViewController {
         do {
             try fileCache.load(file: file)
         } catch {
-            
+           print("Loading error")
         }
         updateViewModels()
         configureNavBar()
@@ -111,6 +111,7 @@ final class TodoListViewController: UIViewController {
         do {
             try fileCache.save(file: file)
         } catch {
+           print("Saving error")
         }
     }
     
@@ -126,12 +127,12 @@ final class TodoListViewController: UIViewController {
                     dateCreated: todoItem.dateCreated,
                     dateEdited: todoItem.dateEdited))
             } catch {
-                
+               print("Deleting error")
             }
             do {
                 try fileCache.save(file: file)
             } catch {
-                
+               print("Saving error")
             }
         }
     }
