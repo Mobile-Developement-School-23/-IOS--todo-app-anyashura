@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol DetailViewControllerDelegate: AnyObject {
+    
+    func itemDidChanged()
+}
 class DetailViewController: UIViewController {
     // MARK: - Enum
     enum Constants {
@@ -31,7 +35,7 @@ class DetailViewController: UIViewController {
     private let file = "first.json"
     private let firstDividedLine = DividedLineView()
     private let secondDividedLine = DividedLineView()
-    private let thirdDividedLine = DividedLineView()
+    private let id: String?
     
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView()
@@ -42,10 +46,11 @@ class DetailViewController: UIViewController {
         return stackView
     }()
     
-    private let cancelButton: UIButton = {
+    private lazy var cancelButton: UIButton = {
         let button = UIButton()
         button.setTitle(ConstantsText.cancel, for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
+        button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -102,7 +107,7 @@ class DetailViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-
+    
     private lazy var textView: TextView = {
         let textView = TextView()
         textView.textAlignment = .left
@@ -123,8 +128,8 @@ class DetailViewController: UIViewController {
         return view
     }()
     
-    private lazy var deadLineView: DeadlineView = {
-        let view = DeadlineView()
+    private lazy var deadLineView: DeadLineView = {
+        let view = DeadLineView()
         view.delegate = self
         return view
     }()
@@ -157,11 +162,19 @@ class DetailViewController: UIViewController {
         return datePicker
     }()
     
+    weak var delegate: DetailViewControllerDelegate?
+    
+    
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .background
         secondDividedLine.isHidden = true
+        do {
+            try fileCache.load(file: file)
+        } catch {
+            print("Не удалось загрузить")
+        }
         addSubviews()
         addConstraints()
         setUpObservers()
@@ -169,12 +182,24 @@ class DetailViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        loadFromCache()
+        guard let id = id else { return }
+        loadFromCache(id: id)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         view.setNeedsUpdateConstraints()
+    }
+    
+    // MARK: - Init
+    
+    init(id: String?) {
+        self.id = id
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     deinit {
@@ -190,31 +215,24 @@ class DetailViewController: UIViewController {
         )
     }
     
-    // MARK: - Private methods
+    // MARK: - Methods
     
-    private func loadFromCache() {
-        do {
-            try fileCache.load(file: file)
-            if let todo = fileCache.todoItems.first {
-                todoItemViewModel.importance = todo.importance
-                todoItemViewModel.deadline = todo.deadline
-                todoItemViewModel.id = todo.id
-                todoItemViewModel.text = todo.text
-                
-                updateView()
-                
-                fileCache.delete(todoItemID: todo.id)
-            }
-        } catch {
-            print("Не удалось загрузить")
+    private func loadFromCache(id: String) {
+        if let todo = fileCache.todoItems.first(where: { $0.id == id }) {
+            todoItemViewModel.importance = todo.importance
+            todoItemViewModel.deadline = todo.deadline
+            todoItemViewModel.id = todo.id
+            todoItemViewModel.text = todo.text
+            
+            updateView()
         }
     }
-
+    
     private func addSubviews() {
         view.addSubview(topStackView)
-          topStackView.addArrangedSubview(cancelButton)
-          topStackView.addArrangedSubview(taskLabel)
-          topStackView.addArrangedSubview(saveButton)
+        topStackView.addArrangedSubview(cancelButton)
+        topStackView.addArrangedSubview(taskLabel)
+        topStackView.addArrangedSubview(saveButton)
         
         view.addSubview(scrollView)
         scrollView.addSubview(stackViewForAllViews)
@@ -281,7 +299,11 @@ class DetailViewController: UIViewController {
     private func setDateForButton(_ date: Date) {
         deadLineView.setDate(date)
     }
-
+    
+    @objc private func cancelButtonTapped() {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     @objc private func saveButtonTapped() {
         guard
             let text = todoItemViewModel.text
@@ -289,30 +311,45 @@ class DetailViewController: UIViewController {
             return
         }
         let importance = todoItemViewModel.importance
-        let todoItem = TodoItem(text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
         
-        do {
-            try fileCache.add(todoItem: todoItem)
-        } catch {
-            
+        let todoItem: TodoItem
+        if let id = self.id {
+            todoItem = TodoItem(id: id, text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
+            do {
+                try fileCache.update(todoItem: todoItem)
+            } catch {
+
+            }
+        } else {
+            todoItem = TodoItem(text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
+            do {
+                try fileCache.add(todoItem: todoItem)
+            } catch {
+
+            }
         }
+        
         do {
             try fileCache.save(file: file)
         } catch {
-            
+
         }
-        fileCache.delete(todoItemID: todoItem.id)
+        delegate?.itemDidChanged()
+        self.dismiss(animated: true, completion: nil)
     }
     
     @objc private func deleteButtonTapped() {
-        todoItemViewModel = TodoItemViewModel()
-        updateView()
-        
-        do {
-            try fileCache.deleteFile(file: file)
-        } catch {
-            
+        guard let id = todoItemViewModel.id else {
+            return
         }
+        fileCache.delete(todoItemID: id)
+        do {
+            try fileCache.save(file: file)
+        } catch {
+
+        }
+        delegate?.itemDidChanged()
+        self.dismiss(animated: true, completion: nil)
     }
     
     private func updateView() {
@@ -323,6 +360,11 @@ class DetailViewController: UIViewController {
         importanceView.changeImportance(importance: todoItemViewModel.importance)
         datePicker.isHidden = true
         secondDividedLine.isHidden = true
+    }
+    
+    func configure(todoItem: TodoItem) {
+        todoItemViewModel = TodoItemViewModel(id: todoItem.id)
+        updateView()
     }
 }
 
@@ -345,6 +387,7 @@ extension DetailViewController: TextViewDelegate {
 
 extension DetailViewController {
     func deleteAndSaveIsEnabledToggle() {
+
         guard
             !(todoItemViewModel.text == nil || todoItemViewModel.text?.isEmpty == true)
         else {
@@ -354,6 +397,10 @@ extension DetailViewController {
         }
         saveButton.isEnabled = true
         deleteButton.isEnabled = true
+        guard let id = todoItemViewModel.id else {
+            deleteButton.isEnabled = false
+            return
+        }
     }
 }
 
@@ -435,5 +482,5 @@ extension DetailViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
-
+    
 }

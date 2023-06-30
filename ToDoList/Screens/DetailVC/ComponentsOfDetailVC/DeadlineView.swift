@@ -1,5 +1,5 @@
 //
-//  DeadlineView.swift
+//  DeadLineView.swift
 //  ToDoList
 //
 //  Created by Anna Shuryaeva on 21.06.2023.
@@ -13,7 +13,7 @@ protocol DeadLineViewDelegate: AnyObject {
     func switcherTapped(isOn: Bool)
 }
 
-final class DeadlineView: UIView {
+final class DeadLineView: UIView {
     
     // MARK: - Enum
     enum Constants {

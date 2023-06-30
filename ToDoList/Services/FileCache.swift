@@ -25,8 +25,13 @@ final class FileCache: FileCacheProtocol {
     }
     
     //delete item with id
-    func delete(todoItemID: String) {
-        todoItems.removeAll(where: { $0.id == todoItemID })
+    func delete(todoItemID: String) -> TodoItem? {
+        if let deletedTodo = todoItems.first(where: { $0.id == todoItemID }) {
+            todoItems.removeAll(where: { $0.id == todoItemID })
+            return deletedTodo
+        } else {
+            return nil
+        }
     }
     
     //update existing item
@@ -38,6 +43,7 @@ final class FileCache: FileCacheProtocol {
     //save data to JSON
     func save(file: String) throws {
         let jsonTodoItems = todoItems.map { $0.json }
+        print(jsonTodoItems)
         guard JSONSerialization.isValidJSONObject(jsonTodoItems),
               let jsonData = try? JSONSerialization.data(withJSONObject: jsonTodoItems) else {
             throw FileCacheErrors.invalidJsonSerialization
