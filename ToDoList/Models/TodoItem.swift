@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FileCache
 
 struct TodoItem {
     
@@ -45,7 +46,7 @@ struct TodoItem {
 }
 
 // MARK: - Extensions
-extension TodoItem {
+extension TodoItem: TodoItemProtocol {
     var json: Any {
         var dictionary: [String: Any] = [:]
         

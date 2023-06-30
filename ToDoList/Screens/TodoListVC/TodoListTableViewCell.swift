@@ -14,8 +14,8 @@ protocol TodoListTableViewCellDelegate: AnyObject {
 
 class TodoListTableViewCell: UITableViewCell {
     
-    private let isDoneCircle: isDoneCircleControl = {
-        let circle = isDoneCircleControl()
+    private let isDoneCircle: IsDoneCircleControl = {
+        let circle = IsDoneCircleControl()
         circle.addTarget(self, action: #selector(isDoneCircleTapped(sender:)), for: .touchUpInside)
         circle.translatesAutoresizingMaskIntoConstraints = false
         return circle

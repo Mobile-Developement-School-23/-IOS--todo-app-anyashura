@@ -16,4 +16,3 @@ extension UIFont {
     static let toDoFootnote = UIFont.boldSystemFont(ofSize: 13)
 }
 
-

@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 
-final class isDoneCircleControl: UIControl {
+final class IsDoneCircleControl: UIControl {
     
     // MARK: - Properties
     

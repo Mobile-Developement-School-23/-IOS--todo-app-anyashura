@@ -8,9 +8,8 @@
 import Foundation
 import UIKit
 
-
 struct TodoCellViewModel {
-
+    
     // MARK: - Properties
     
     let id: String
@@ -22,24 +21,23 @@ struct TodoCellViewModel {
             text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: text, done: isDone)
         }
     }
-
+    
     // MARK: - Init
-
+    
     init(from item: TodoItem) {
         self.id = item.id
         self.importance = item.importance
         self.isDone = item.isDone
-
+        
         let textMutableString = TodoCellViewModel.getImportantTextIfNeeded(for: item.text, importance: item.importance)
         text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: textMutableString, done: item.isDone)
-
+        
         guard let deadline = item.deadline else { return }
         let dateString = TodoCellViewModel.dateToString(from: deadline)
         self.deadline = TodoCellViewModel.addCalendar(string: dateString)
     }
-
-    // MARK: - Methods
     
+    // MARK: - Methods
     private static func getImportantTextIfNeeded(for text: String, importance: TodoItem.Importance) -> NSMutableAttributedString {
         let fullTextString: NSMutableAttributedString = NSMutableAttributedString(string: "")
         let taskTextMutableString = NSMutableAttributedString(string: text)
@@ -58,7 +56,10 @@ struct TodoCellViewModel {
     private static func getStrikeThroughTextIfNeeded(for string: NSMutableAttributedString, done: Bool) -> NSMutableAttributedString {
         if done {
             string.addAttributes(
-                [.foregroundColor: UIColor.placeholderText,.strikethroughStyle: 1],
+                [
+                    .foregroundColor: UIColor.placeholderText,
+                    .strikethroughStyle: 1
+                ],
                 range: NSRange(location: 0, length: string.length)
             )
         } else {
@@ -66,22 +67,25 @@ struct TodoCellViewModel {
         }
         return string
     }
-
+    
     private static func addCalendar(string: String) -> NSMutableAttributedString {
         let fullString = NSMutableAttributedString(string: "")
-
+        
         let imageCalendarAttachment = NSTextAttachment()
         imageCalendarAttachment.image = UIImage(systemName: "calendar")?.withTintColor(.placeholderText)
         let imageString = NSAttributedString(attachment: imageCalendarAttachment)
-
+        
         fullString.append(imageString)
         fullString.append(NSAttributedString(string: " " + string))
-
+        
         fullString.addAttributes(
-            [.font: UIFont.toDoBody,.foregroundColor: UIColor.placeholderText],
+            [
+                .font: UIFont.toDoBody,
+                .foregroundColor: UIColor.placeholderText
+            ],
             range: NSRange(location: 0, length: fullString.length)
         )
-
+        
         return fullString
     }
     

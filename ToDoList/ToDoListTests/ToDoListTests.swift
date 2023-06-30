@@ -10,8 +10,8 @@ import XCTest
 
 final class ToDoListTests: XCTestCase {
     
-    //MARK: - Tests for TodoItem
-    //Сделала тесты только для TodoItem (в ТЗ написано только для этого)
+    // MARK: - Tests for TodoItem
+    // Сделала тесты только для TodoItem (в ТЗ написано только для этого)
     func testParsingJSONWithoutOptionals() throws {
         let json: [String:Any] =
         [
@@ -21,7 +21,7 @@ final class ToDoListTests: XCTestCase {
             "importance": "low",
             "dateCreated": 1686945208
         ]
-        guard let item = TodoItem.parse(json: json) else{
+        guard let item = TodoItem.parse(json: json) else {
             XCTFail("Не получилось распарсить JSON в todoItem")
             return
         }
@@ -44,7 +44,7 @@ final class ToDoListTests: XCTestCase {
             "dateEdited": 1686945209,
             "deadline": 1686945309
         ]
-        guard let item = TodoItem.parse(json: json) else{
+        guard let item = TodoItem.parse(json: json) else {
             XCTFail("Не получилось распарсить JSON в todoItem")
             return
         }
@@ -59,7 +59,7 @@ final class ToDoListTests: XCTestCase {
     
     func testParsingCSVWithoutOptionals() throws {
         let csvString = "5A0C0E34-B9F6-4C0B-963B-8E4838AAD99E,text,high,, true,1686946798,"
-        guard let item = TodoItem.parseCSV(csvString: csvString) else{
+        guard let item = TodoItem.parseCSV(csvString: csvString) else {
             XCTFail("Не получилось распарсить CSV в todoItem")
             return
         }
@@ -104,7 +104,9 @@ final class ToDoListTests: XCTestCase {
         
         let csvString = item.csvString
         
-        XCTAssertEqual(csvString, "123,text,,\(Int(deadline.timeIntervalSince1970)), false,\(Int(dateCreated.timeIntervalSince1970)),\(Int(dateEdited.timeIntervalSince1970))", "Получение строки из todoItem")
+        XCTAssertEqual
+        (csvString, "123,text,,\(Int(deadline.timeIntervalSince1970)), false,\(Int(dateCreated.timeIntervalSince1970)),\(Int(dateEdited.timeIntervalSince1970))",
+        "Получение строки из todoItem")
     }
     
     func testConvertStructToCsvWithoutOptionals() {
@@ -142,7 +144,6 @@ final class ToDoListTests: XCTestCase {
         )
         
         let json = item.json as? [String: Any]
-        
         XCTAssertEqual(json?[TodoItem.Constants.id] as? String, id)
         XCTAssertEqual(json?[TodoItem.Constants.text] as? String, text)
         XCTAssertEqual(json?[TodoItem.Constants.deadline] as? Int, Int(deadline.timeIntervalSince1970))
@@ -216,4 +217,3 @@ final class ToDoListTests: XCTestCase {
         XCTAssertNil(item, "Неправильный формат обязательных полей")
     }
 }
-

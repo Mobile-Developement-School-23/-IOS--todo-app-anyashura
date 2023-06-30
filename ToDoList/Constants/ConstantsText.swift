@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 enum ConstantsText {
     static let whatToDo = "Что надо сделать?"
     static let cancel = "Отменить"

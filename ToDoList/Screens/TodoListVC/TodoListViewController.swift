@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import CocoaLumberjackSwift
+import FileCache
 
 final class TodoListViewController: UIViewController {
     
@@ -21,7 +23,7 @@ final class TodoListViewController: UIViewController {
         static let nameForCircleImage = "doneGray"
     }
     
-    private var fileCache = FileCache()
+    private var fileCache = FileCache<TodoItem>()
     private let file = "first.json"
     private var countOfDoneTasks = 0
     private var todoCellViewModels = [TodoCellViewModel]()
@@ -65,7 +67,7 @@ final class TodoListViewController: UIViewController {
         do {
             try fileCache.load(file: file)
         } catch {
-            
+            DDLogError("File loading error")
         }
         updateViewModels()
         configureNavBar()
@@ -111,6 +113,7 @@ final class TodoListViewController: UIViewController {
         do {
             try fileCache.save(file: file)
         } catch {
+            DDLogError("File saving error")
         }
     }
     
@@ -126,12 +129,12 @@ final class TodoListViewController: UIViewController {
                     dateCreated: todoItem.dateCreated,
                     dateEdited: todoItem.dateEdited))
             } catch {
-                
+                DDLogError("File deleting error")
             }
             do {
                 try fileCache.save(file: file)
             } catch {
-                
+                DDLogError("File saving error")
             }
         }
     }
@@ -154,7 +157,6 @@ final class TodoListViewController: UIViewController {
 
 extension TodoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         let lastIndex = tableView.numberOfRows(inSection: 0) - 1
         guard indexPath.row != lastIndex else {
             let vc = DetailViewController(id: nil)
@@ -244,11 +246,17 @@ extension TodoListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let lastIndex = tableView.numberOfRows(inSection: 0) - 1
         if indexPath.row == lastIndex {
-            let cell: NewTableViewCell? = tableView.dequeueReusableCell(withIdentifier: Constants.cellIDNewTodo, for: indexPath) as? NewTableViewCell
+            let cell: NewTableViewCell? = tableView.dequeueReusableCell(
+                withIdentifier: Constants.cellIDNewTodo,
+                for: indexPath
+            ) as? NewTableViewCell
             cell?.configureCellWith(firstCell: indexPath.row == 0)
             return cell ?? UITableViewCell()
         } else {
-            let cell: TodoListTableViewCell? = tableView.dequeueReusableCell(withIdentifier: Constants.cellIDTodo, for: indexPath) as? TodoListTableViewCell
+            let cell: TodoListTableViewCell? = tableView.dequeueReusableCell(
+                withIdentifier: Constants.cellIDTodo,
+                for: indexPath
+            ) as? TodoListTableViewCell
             let todoCellViewModel = todoCellViewModels[indexPath.row]
             cell?.configureCellWith(model: todoCellViewModel, setTopMaskedCorners: indexPath.row == 0 ? true : false)
             cell?.delegate = self
@@ -258,7 +266,6 @@ extension TodoListViewController: UITableViewDataSource {
 }
 
 extension TodoListViewController: TodoListTableViewCellDelegate {
-    
     func statusChangedFor(id: String) {
         ifTaskIsDone(id: id)
         updateViewModels()
@@ -266,17 +273,15 @@ extension TodoListViewController: TodoListTableViewCellDelegate {
 }
 
 extension TodoListViewController: DetailViewControllerDelegate {
-    
     func itemDidChanged() {
         do {
             try fileCache.load(file: file)
         } catch {
-            
+            DDLogError("File loading error")
         }
         updateViewModels()
     }
 }
-
 
 extension TodoListViewController: HeaderForTodoListTableViewDelegate {
     func showDoneTodoButton(completedTasksAreHidden: Bool) {
@@ -284,4 +289,3 @@ extension TodoListViewController: HeaderForTodoListTableViewDelegate {
         updateViewModels()
     }
 }
-

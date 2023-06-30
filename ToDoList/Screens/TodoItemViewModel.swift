@@ -8,10 +8,8 @@
 import Foundation
 
 struct TodoItemViewModel {
-    
     var id: String?
     var text: String?
     var importance: TodoItem.Importance  = .normal
     var deadline: Date?
 }
-

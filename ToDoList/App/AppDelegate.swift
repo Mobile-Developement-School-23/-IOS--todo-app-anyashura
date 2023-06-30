@@ -5,14 +5,17 @@
 //  Created by Anna Shuryaeva on 11.06.2023.
 //
 
+import CocoaLumberjackSwift
 import UIKit
+import FileCache
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        setupLogger()
+//        let a = FileCache1(a: "")
         return true
     }
 
@@ -27,6 +30,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     }
 
+    func setupLogger() {
+        DDLog.add(DDOSLogger.sharedInstance)
 
+        let fileLogger: DDFileLogger = DDFileLogger()
+        fileLogger.rollingFrequency = 60 * 60 * 24
+        fileLogger.logFileManager.maximumNumberOfLogFiles = 7
+        DDLog.add(fileLogger)
+    }
 }
-

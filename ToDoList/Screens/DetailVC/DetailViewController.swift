@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import CocoaLumberjackSwift
+import FileCache
 
 protocol DetailViewControllerDelegate: AnyObject {
-    
     func itemDidChanged()
 }
+
 class DetailViewController: UIViewController {
     // MARK: - Enum
     enum Constants {
@@ -31,7 +33,7 @@ class DetailViewController: UIViewController {
     // MARK: - Properties
     
     private var todoItemViewModel = TodoItemViewModel()
-    private let fileCache = FileCache()
+    private let fileCache = FileCache<TodoItem>()
     private let file = "first.json"
     private let firstDividedLine = DividedLineView()
     private let secondDividedLine = DividedLineView()
@@ -164,8 +166,8 @@ class DetailViewController: UIViewController {
     
     weak var delegate: DetailViewControllerDelegate?
     
+    // MARK: - Lifecycle
     
-    //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .background
@@ -173,7 +175,7 @@ class DetailViewController: UIViewController {
         do {
             try fileCache.load(file: file)
         } catch {
-            print("Не удалось загрузить")
+            DDLogError("File loading error")
         }
         addSubviews()
         addConstraints()
@@ -318,21 +320,21 @@ class DetailViewController: UIViewController {
             do {
                 try fileCache.update(todoItem: todoItem)
             } catch {
-
+                DDLogError("File updating error")
             }
         } else {
             todoItem = TodoItem(text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
             do {
                 try fileCache.add(todoItem: todoItem)
             } catch {
-
+                DDLogError("Item adding error")
             }
         }
         
         do {
             try fileCache.save(file: file)
         } catch {
-
+            DDLogError("File saving error")
         }
         delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
@@ -346,7 +348,7 @@ class DetailViewController: UIViewController {
         do {
             try fileCache.save(file: file)
         } catch {
-
+            DDLogError("File saving error")
         }
         delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
@@ -397,7 +399,7 @@ extension DetailViewController {
         }
         saveButton.isEnabled = true
         deleteButton.isEnabled = true
-        guard let id = todoItemViewModel.id else {
+        guard todoItemViewModel.id != nil else {
             deleteButton.isEnabled = false
             return
         }
@@ -482,5 +484,4 @@ extension DetailViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
-    
 }
