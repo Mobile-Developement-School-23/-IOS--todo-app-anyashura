@@ -92,9 +92,9 @@ final class HeaderForTodoListTableView: UITableViewHeaderFooterView {
     
     func configureShowHideButton(completedTasksAreHidden: Bool) {
         if completedTasksAreHidden {
-            showHideButton.setTitle(ConstantsText.show, for: .normal)
-        } else {
             showHideButton.setTitle(ConstantsText.hide, for: .normal)
+        } else {
+            showHideButton.setTitle(ConstantsText.show, for: .normal)
         }
     }
 }

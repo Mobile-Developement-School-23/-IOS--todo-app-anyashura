@@ -25,7 +25,7 @@ final class TodoListViewController: UIViewController {
     private let file = "first.json"
     private var countOfDoneTasks = 0
     private var todoCellViewModels = [TodoCellViewModel]()
-    private var completedTasksAreHidden: Bool = true
+    private var completedTasksAreHidden: Bool = false
     private var selectedCellFrame: CGRect?
     
     private let topStackView: UIStackView = {
