@@ -9,11 +9,11 @@ import XCTest
 @testable import ToDoList
 
 final class ToDoListTests: XCTestCase {
-    
+
     // MARK: - Tests for TodoItem
     // Сделала тесты только для TodoItem (в ТЗ написано только для этого)
     func testParsingJSONWithoutOptionals() throws {
-        let json: [String:Any] =
+        let json: [String: Any] =
         [
             "id": "id",
             "text": "text",
@@ -33,9 +33,9 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(item.dateEdited, nil, "Парсинг даты редактирования")
         XCTAssertEqual(item.isDone, true, "Парсинг статуса готовности")
     }
-    
+
     func testParsingJSONWithNormalImportanceAndAllFields() throws {
-        let json: [String:Any] =
+        let json: [String: Any] =
         [
             "id": "id",
             "text": "text",
@@ -56,7 +56,7 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(item.dateEdited, 1686945209.dateFormat, "Парсинг даты редактирования")
         XCTAssertEqual(item.isDone, false, "Парсинг статуса готовности")
     }
-    
+
     func testParsingCSVWithoutOptionals() throws {
         let csvString = "5A0C0E34-B9F6-4C0B-963B-8E4838AAD99E,text,high,, true,1686946798,"
         guard let item = TodoItem.parseCSV(csvString: csvString) else {
@@ -71,10 +71,10 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(item.dateEdited, nil, "Парсинг даты редактирования")
         XCTAssertEqual(item.isDone, true, "Парсинг статуса готовности")
     }
-    
+
     func testParsingCSVWithNormalImportanceAndAllFields() throws {
         let csvString = "id,text,,1686947257, false,1686947257,1686947257"
-        guard let item = TodoItem.parseCSV(csvString: csvString) else{
+        guard let item = TodoItem.parseCSV(csvString: csvString) else {
             XCTFail("Не получилось распарсить CSV в todoItem")
             return
         }
@@ -86,12 +86,12 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(item.dateEdited, 1686947257.dateFormat, "Парсинг даты редактирования")
         XCTAssertEqual(item.isDone, false, "Парсинг статуса готовности")
     }
-    
+
     func testConvertStructToCsvWithNormalImportanceAndAllFields() {
         let deadline = Date(timeIntervalSinceNow: 86400)
         let dateCreated = Date()
         let dateEdited = Date(timeIntervalSinceNow: 3600)
-        
+
         let item = TodoItem(
             id: "123",
             text: "text",
@@ -101,17 +101,17 @@ final class ToDoListTests: XCTestCase {
             dateCreated: Date(),
             dateEdited: Date(timeIntervalSinceNow: 3600)
         )
-        
+
         let csvString = item.csvString
-        
+
         XCTAssertEqual
         (csvString, "123,text,,\(Int(deadline.timeIntervalSince1970)), false,\(Int(dateCreated.timeIntervalSince1970)),\(Int(dateEdited.timeIntervalSince1970))",
         "Получение строки из todoItem")
     }
-    
+
     func testConvertStructToCsvWithoutOptionals() {
         let dateCreated = Date()
-        
+
         let item = TodoItem(
             id: "123",
             text: "text",
@@ -120,10 +120,10 @@ final class ToDoListTests: XCTestCase {
             dateCreated: Date()
         )
         let csvString = item.csvString
-        
+
         XCTAssertEqual(csvString, "123,text,high,, true,\(Int(dateCreated.timeIntervalSince1970)),", "Получение строки из todoItem")
     }
-    
+
     func testConvertStructToJsonWithNormalImportanceAndAllFields() {
         let id = "123"
         let text = "Some text"
@@ -132,7 +132,7 @@ final class ToDoListTests: XCTestCase {
         let isDone = false
         let dateCreated = Date()
         let dateEdited = Date(timeIntervalSinceNow: 3600)
-        
+
         let item = TodoItem(
             id: id,
             text: text,
@@ -142,7 +142,7 @@ final class ToDoListTests: XCTestCase {
             dateCreated: dateCreated,
             dateEdited: dateEdited
         )
-        
+
         let json = item.json as? [String: Any]
         XCTAssertEqual(json?[TodoItem.Constants.id] as? String, id)
         XCTAssertEqual(json?[TodoItem.Constants.text] as? String, text)
@@ -152,7 +152,7 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(json?[TodoItem.Constants.dateCreated] as? Int, Int(dateCreated.timeIntervalSince1970))
         XCTAssertEqual(json?[TodoItem.Constants.dateEdited] as? Int, Int(dateEdited.timeIntervalSince1970))
     }
-    
+
     func testConvertStructToJsonWithoutOptionals() {
         let id = "123"
         let text = "Some text"
@@ -161,7 +161,7 @@ final class ToDoListTests: XCTestCase {
         let isDone = false
         let dateCreated = Date()
         let dateEdited: Date? = nil
-        
+
         let item = TodoItem(
             id: id,
             text: text,
@@ -171,7 +171,7 @@ final class ToDoListTests: XCTestCase {
             dateCreated: dateCreated,
             dateEdited: dateEdited
         )
-        
+
         let json = item.json as? [String: Any]
         XCTAssertEqual(json?[TodoItem.Constants.id] as? String, id)
         XCTAssertEqual(json?[TodoItem.Constants.text] as? String, text)
@@ -180,7 +180,7 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(json?[TodoItem.Constants.isDone] as? Bool, isDone)
         XCTAssertEqual(json?[TodoItem.Constants.dateCreated] as? Int, Int(dateCreated.timeIntervalSince1970))
     }
-    
+
     func testConvertStructToCsvWithSeparatorInName() {
         let item = TodoItem(
             id: "123",
@@ -189,14 +189,14 @@ final class ToDoListTests: XCTestCase {
             isDone: false,
             dateCreated: Date.now
         )
-        
+
         let csvString = item.csvString
-        
+
         XCTAssertEqual(csvString, "123,text~ text~ text,,, false,\(Date.now.timeStamp),", "Получение строки из todoItem со знаком сепаратора внутри")
     }
-    
+
     func testJSONInAnotherFormat() {
-        let json: [Int:Any] =
+        let json: [Int: Any] =
         [
             1: "id",
             2: "text"
@@ -204,9 +204,9 @@ final class ToDoListTests: XCTestCase {
         let item = TodoItem.parse(json: json)
         XCTAssertNil(item)
     }
-    
+
     func testParsingJSONWithNil() throws {
-        let json: [String:Any] =
+        let json: [String: Any] =
         [
             "id": 1,
             "text": 1,

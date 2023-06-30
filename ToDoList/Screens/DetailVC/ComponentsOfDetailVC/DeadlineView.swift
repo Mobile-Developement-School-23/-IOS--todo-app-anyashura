@@ -14,7 +14,7 @@ protocol DeadLineViewDelegate: AnyObject {
 }
 
 final class DeadLineView: UIView {
-    
+
     // MARK: - Enum
     enum Constants {
         static let textViewCornerRadius: CGFloat = 16.0
@@ -23,7 +23,7 @@ final class DeadLineView: UIView {
         static let insetsForDividedLine = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: -16)
         static let heightForDate: CGFloat = 18
     }
-    
+
     // MARK: - Properties
 
     private let deadlineStackView: UIStackView = {
@@ -34,7 +34,7 @@ final class DeadLineView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-    
+
     private let deadlineBeforeLabel: UILabel = {
         let label = UILabel()
         label.text = ConstantsText.deadlineBefore
@@ -43,7 +43,7 @@ final class DeadLineView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     private lazy var dateOfDeadlineButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.saveColor, for: .normal)
@@ -54,7 +54,7 @@ final class DeadLineView: UIView {
         button.addTarget(self, action: #selector(dateButtonTapped), for: .touchUpInside)
         return button
     }()
-    
+
     private lazy var switcherForDeadline: UISwitch = {
         let switcherForDeadline = UISwitch()
         switcherForDeadline.subviews[0].subviews[0].backgroundColor = .segment
@@ -62,9 +62,9 @@ final class DeadLineView: UIView {
         switcherForDeadline.translatesAutoresizingMaskIntoConstraints = false
         return switcherForDeadline
     }()
-    
+
     weak var delegate: DeadLineViewDelegate?
-    
+
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -73,11 +73,11 @@ final class DeadLineView: UIView {
         addSubviews()
         addConstraints()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Private methods
     private func addSubviews() {
         addSubview(switcherForDeadline)
@@ -85,40 +85,43 @@ final class DeadLineView: UIView {
         deadlineStackView.addArrangedSubview(deadlineBeforeLabel)
         deadlineStackView.addArrangedSubview(dateOfDeadlineButton)
     }
-    
+
     private func addConstraints() {
         NSLayoutConstraint.activate([
             deadlineStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.insetsForStackView.left),
             deadlineStackView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            
+
             dateOfDeadlineButton.heightAnchor.constraint(equalToConstant: Constants.heightForDate),
             dateOfDeadlineButton.leadingAnchor.constraint(equalTo: deadlineStackView.leadingAnchor),
-            
+
             switcherForDeadline.centerYAnchor.constraint(equalTo: centerYAnchor),
-            switcherForDeadline.trailingAnchor.constraint(equalTo: trailingAnchor, constant: Constants.rightInsetForSwitcher)
+            switcherForDeadline.trailingAnchor.constraint(
+                equalTo: trailingAnchor,
+                constant: Constants.rightInsetForSwitcher
+            )
         ])
     }
-    
+
     @objc private func switcherTapped(_ sender: UISwitch) {
         delegate?.switcherTapped(isOn: sender.isOn)
     }
-    
+
     @objc private func dateButtonTapped() {
         delegate?.dateButtonTapped()
     }
-    
+
     // MARK: - Methods
-    
+
     func switcherIsON(for date: Date) {
         dateOfDeadlineButton.isHidden = false
         setDate(date)
     }
-    
+
     func switcherIsOff() {
         dateOfDeadlineButton.isHidden = true
         dateOfDeadlineButton.setTitle(nil, for: .normal)
     }
-    
+
     func setDate(_ date: Date) {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMMM yyyy"
@@ -127,7 +130,7 @@ final class DeadLineView: UIView {
         dateOfDeadlineButton.isHidden = false
         deadlineStackView.layoutIfNeeded()
     }
-    
+
     func setSwitch(isOn: Bool) {
         switcherForDeadline.isOn = isOn
         delegate?.switcherTapped(isOn: isOn)

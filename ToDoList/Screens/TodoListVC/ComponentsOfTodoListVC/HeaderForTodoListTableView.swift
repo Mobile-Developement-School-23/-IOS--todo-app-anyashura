@@ -17,16 +17,15 @@ protocol HeaderForTodoListTableViewDelegate: AnyObject {
 // MARK: - Class
 
 final class HeaderForTodoListTableView: UITableViewHeaderFooterView {
-    
+
     // MARK: - Constants
-    
+
     enum Constants {
         static let trailingInsetForShowHide: CGFloat = -16
         static let leadingInsetForIsDone: CGFloat = 16
     }
-    
+
     // MARK: - Properties
-    
 
     private let isDoneLabel: UILabel = {
         let label = UILabel()
@@ -36,7 +35,7 @@ final class HeaderForTodoListTableView: UITableViewHeaderFooterView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     private lazy var showHideButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.saveColor, for: .normal)
@@ -49,29 +48,29 @@ final class HeaderForTodoListTableView: UITableViewHeaderFooterView {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
     weak var delegate: HeaderForTodoListTableViewDelegate?
-    
+
     // MARK: - Init
-    
+
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
         backgroundView?.backgroundColor = .clear
         addSubviews()
         addConstraints()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Methods
-    
+
     private func addSubviews() {
         addSubview(isDoneLabel)
         addSubview(showHideButton)
     }
-    
+
     private func addConstraints() {
         NSLayoutConstraint.activate([
             isDoneLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.leadingInsetForIsDone),
@@ -81,15 +80,15 @@ final class HeaderForTodoListTableView: UITableViewHeaderFooterView {
             showHideButton.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
-    
+
     @objc private func showHideButtonTapped(sender: UIButton) {
         delegate?.showDoneTodoButton(completedTasksAreHidden: !sender.isSelected)
     }
-    
+
     func configureIsDoneLabel(count: Int) {
         isDoneLabel.text = ConstantsText.isDone + "\(count)"
     }
-    
+
     func configureShowHideButton(completedTasksAreHidden: Bool) {
         if completedTasksAreHidden {
             showHideButton.setTitle(ConstantsText.hide, for: .normal)

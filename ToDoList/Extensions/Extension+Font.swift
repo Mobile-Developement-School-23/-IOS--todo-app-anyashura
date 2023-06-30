@@ -15,4 +15,3 @@ extension UIFont {
     static let toDoSubhead = UIFont.systemFont(ofSize: 15)
     static let toDoFootnote = UIFont.boldSystemFont(ofSize: 13)
 }
-

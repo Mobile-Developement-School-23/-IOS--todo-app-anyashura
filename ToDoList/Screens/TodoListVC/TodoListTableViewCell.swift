@@ -13,14 +13,14 @@ protocol TodoListTableViewCellDelegate: AnyObject {
 }
 
 class TodoListTableViewCell: UITableViewCell {
-    
-    private let isDoneCircle: IsDoneCircleControl = {
+
+    private lazy var isDoneCircle: IsDoneCircleControl = {
         let circle = IsDoneCircleControl()
         circle.addTarget(self, action: #selector(isDoneCircleTapped(sender:)), for: .touchUpInside)
         circle.translatesAutoresizingMaskIntoConstraints = false
         return circle
     }()
-    
+
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -28,7 +28,7 @@ class TodoListTableViewCell: UITableViewCell {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-    
+
     private let todoItemLabel: UILabel = {
         let label = UILabel()
         label.font = .toDoBody
@@ -37,7 +37,7 @@ class TodoListTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     private let deadlineStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -45,7 +45,7 @@ class TodoListTableViewCell: UITableViewCell {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-    
+
     private let deadlineLabel: UILabel = {
         let label = UILabel()
         label.font = .toDoSubhead
@@ -53,7 +53,7 @@ class TodoListTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "chevron.right")
@@ -61,17 +61,17 @@ class TodoListTableViewCell: UITableViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-    
+
     private let dividedLineView: UIView = {
         let view = UIView()
         view.backgroundColor = .separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     weak var delegate: TodoListTableViewCellDelegate?
     private var todoCellViewModel: TodoCellViewModel?
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
@@ -80,7 +80,7 @@ class TodoListTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
     }
-    
+
     // MARK: - Init
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -92,7 +92,7 @@ class TodoListTableViewCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func addSubviews() {
         contentView.addSubview(isDoneCircle)
         contentView.addSubview(stackView)
@@ -102,7 +102,7 @@ class TodoListTableViewCell: UITableViewCell {
         stackView.addArrangedSubview(todoItemLabel)
         stackView.addArrangedSubview(deadlineLabel)
     }
-    
+
     private func addConstraints() {
 
         let heightConstraint = isDoneCircle.heightAnchor.constraint(equalToConstant: 24)
@@ -130,7 +130,7 @@ class TodoListTableViewCell: UITableViewCell {
             dividedLineView.heightAnchor.constraint(equalToConstant: 1)
         ])
     }
-    
+
     private func configureUI() {
         selectionStyle = .none
         backgroundColor = .clear
@@ -140,7 +140,7 @@ class TodoListTableViewCell: UITableViewCell {
         addSubviews()
         addConstraints()
     }
-    
+
     func configureCellWith(model: TodoCellViewModel, setTopMaskedCorners: Bool) {
         todoCellViewModel = model
         todoItemLabel.attributedText = model.text
@@ -151,14 +151,14 @@ class TodoListTableViewCell: UITableViewCell {
             isDoneCircle.setRedColorForCircle(isHighImportance: false)
         }
         isDoneCircle.isSelected = model.isDone
-        
+
         if setTopMaskedCorners {
             contentView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         } else {
             contentView.layer.maskedCorners = []
         }
     }
-    
+
     @objc private func isDoneCircleTapped(sender: UIControl) {
         guard let model = todoCellViewModel else { return }
         delegate?.statusChangedFor(id: model.id)

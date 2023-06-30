@@ -9,9 +9,9 @@ import Foundation
 import UIKit
 
 struct TodoCellViewModel {
-    
+
     // MARK: - Properties
-    
+
     let id: String
     var text: NSMutableAttributedString
     var importance: TodoItem.Importance
@@ -21,22 +21,22 @@ struct TodoCellViewModel {
             text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: text, done: isDone)
         }
     }
-    
+
     // MARK: - Init
-    
+
     init(from item: TodoItem) {
         self.id = item.id
         self.importance = item.importance
         self.isDone = item.isDone
-        
+
         let textMutableString = TodoCellViewModel.getImportantTextIfNeeded(for: item.text, importance: item.importance)
         text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: textMutableString, done: item.isDone)
-        
+
         guard let deadline = item.deadline else { return }
         let dateString = TodoCellViewModel.dateToString(from: deadline)
         self.deadline = TodoCellViewModel.addCalendar(string: dateString)
     }
-    
+
     // MARK: - Methods
     private static func getImportantTextIfNeeded(for text: String, importance: TodoItem.Importance) -> NSMutableAttributedString {
         let fullTextString: NSMutableAttributedString = NSMutableAttributedString(string: "")
@@ -52,7 +52,7 @@ struct TodoCellViewModel {
         fullTextString.append(taskTextMutableString)
         return fullTextString
     }
-    
+
     private static func getStrikeThroughTextIfNeeded(for string: NSMutableAttributedString, done: Bool) -> NSMutableAttributedString {
         if done {
             string.addAttributes(
@@ -67,17 +67,17 @@ struct TodoCellViewModel {
         }
         return string
     }
-    
+
     private static func addCalendar(string: String) -> NSMutableAttributedString {
         let fullString = NSMutableAttributedString(string: "")
-        
+
         let imageCalendarAttachment = NSTextAttachment()
         imageCalendarAttachment.image = UIImage(systemName: "calendar")?.withTintColor(.placeholderText)
         let imageString = NSAttributedString(attachment: imageCalendarAttachment)
-        
+
         fullString.append(imageString)
         fullString.append(NSAttributedString(string: " " + string))
-        
+
         fullString.addAttributes(
             [
                 .font: UIFont.toDoBody,
@@ -85,10 +85,10 @@ struct TodoCellViewModel {
             ],
             range: NSRange(location: 0, length: fullString.length)
         )
-        
+
         return fullString
     }
-    
+
     private static func dateToString(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMMM"
