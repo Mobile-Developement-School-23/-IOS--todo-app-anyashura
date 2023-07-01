@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 extension UIColor {
     static let background: UIColor = UIColor(named: "backgroundColor") ?? .white
     static let text: UIColor = UIColor(named: "textColor") ?? .black
@@ -19,5 +18,4 @@ extension UIColor {
     static let saveColor: UIColor = UIColor(named: "saveColor") ?? .blue
     static let separatorColor: UIColor = UIColor(named: "separatorColor") ?? .gray
     static let switcherColor: UIColor = UIColor(named: "switcherColor") ?? .gray
-    
 }

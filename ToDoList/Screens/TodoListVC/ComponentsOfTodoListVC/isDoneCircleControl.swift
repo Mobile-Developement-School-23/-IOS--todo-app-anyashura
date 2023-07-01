@@ -8,20 +8,19 @@
 import Foundation
 import UIKit
 
+final class IsDoneCircleControl: UIControl {
 
-final class isDoneCircleControl: UIControl {
-    
     // MARK: - Properties
-    
+
     private lazy var isDoneImageView: UIImageView = {
         let view = UIImageView()
         view.image = UIImage(named: "doneGray")
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     private var isHighImportance = false
-    
+
     override var isSelected: Bool {
         didSet {
             if isSelected {
@@ -35,24 +34,24 @@ final class isDoneCircleControl: UIControl {
             }
         }
     }
-    
+
     // MARK: - Init
 
     init() {
         super.init(frame: .zero)
         configureUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Methods
-    
+
     private func configureUI() {
         addSubview(isDoneImageView)
         isDoneImageView.image = UIImage(named: "circleGray")
-        
+
         NSLayoutConstraint.activate([
             isDoneImageView.topAnchor.constraint(equalTo: topAnchor),
             isDoneImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -60,9 +59,9 @@ final class isDoneCircleControl: UIControl {
             isDoneImageView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
-    
+
     // MARK: - Public functions
-    
+
     func setRedColorForCircle(isHighImportance: Bool) {
         self.isHighImportance = isHighImportance
     }

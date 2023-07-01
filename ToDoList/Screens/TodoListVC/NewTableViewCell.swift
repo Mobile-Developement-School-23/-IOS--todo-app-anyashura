@@ -8,7 +8,6 @@
 import UIKit
 
 final class NewTableViewCell: UITableViewCell {
-    
 
     // MARK: - Properties
 
@@ -20,21 +19,21 @@ final class NewTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     // MARK: - Init
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         configureUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Methods
-    
+
     func configureCellWith(firstCell: Bool) {
         if firstCell {
             layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner, .layerMaxXMinYCorner, .layerMinXMinYCorner]
@@ -42,20 +41,20 @@ final class NewTableViewCell: UITableViewCell {
             layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
         }
     }
-    
+
     private func configureUI() {
         backgroundColor = .subviewsBackground
         selectionStyle = .none
         layer.cornerRadius = 16
-        
+
         addSubviews()
         addConstraints()
     }
-    
+
     private func addSubviews() {
         contentView.addSubview(newItemLabel)
     }
-    
+
     private func addConstraints() {
         NSLayoutConstraint.activate([
             newItemLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 52),

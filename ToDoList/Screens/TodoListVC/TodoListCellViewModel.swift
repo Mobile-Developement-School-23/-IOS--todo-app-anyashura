@@ -11,7 +11,7 @@ import UIKit
 struct TodoCellViewModel {
 
     // MARK: - Properties
-    
+
     let id: String
     var text: NSMutableAttributedString
     var importance: TodoItem.Importance
@@ -38,7 +38,6 @@ struct TodoCellViewModel {
     }
 
     // MARK: - Methods
-    
     private static func getImportantTextIfNeeded(for text: String, importance: TodoItem.Importance) -> NSMutableAttributedString {
         let fullTextString: NSMutableAttributedString = NSMutableAttributedString(string: "")
         let taskTextMutableString = NSMutableAttributedString(string: text)
@@ -53,11 +52,14 @@ struct TodoCellViewModel {
         fullTextString.append(taskTextMutableString)
         return fullTextString
     }
-    
+
     private static func getStrikeThroughTextIfNeeded(for string: NSMutableAttributedString, done: Bool) -> NSMutableAttributedString {
         if done {
             string.addAttributes(
-                [.foregroundColor: UIColor.placeholderText,.strikethroughStyle: 1],
+                [
+                    .foregroundColor: UIColor.placeholderText,
+                    .strikethroughStyle: 1
+                ],
                 range: NSRange(location: 0, length: string.length)
             )
         } else {
@@ -77,13 +79,16 @@ struct TodoCellViewModel {
         fullString.append(NSAttributedString(string: " " + string))
 
         fullString.addAttributes(
-            [.font: UIFont.toDoBody,.foregroundColor: UIColor.placeholderText],
+            [
+                .font: UIFont.toDoBody,
+                .foregroundColor: UIColor.placeholderText
+            ],
             range: NSRange(location: 0, length: fullString.length)
         )
 
         return fullString
     }
-    
+
     private static func dateToString(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "d MMMM"

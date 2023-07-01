@@ -7,10 +7,10 @@
 
 import Foundation
 
-//MARK: - Protocol
+// MARK: - Protocol
 protocol FileCacheProtocol {
     func add(todoItem: TodoItem) throws
-    func delete(todoItemID: String) throws -> TodoItem? 
+    func delete(todoItemID: String) throws -> TodoItem?
     func update(todoItem: TodoItem) throws
     func save(file: String) throws
     func saveToSCV(file: String) throws

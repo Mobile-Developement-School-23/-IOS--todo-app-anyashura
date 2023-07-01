@@ -13,7 +13,7 @@ protocol ImportanceViewDelegate: AnyObject {
 }
 
 final class ImportanceView: UIView {
-    
+
     // MARK: - Enum
     enum Constants {
         static let insetsForImportance = UIEdgeInsets(top: 16, left: 16, bottom: 0, right: 16)
@@ -26,7 +26,7 @@ final class ImportanceView: UIView {
         static let lowImportanceImage = "lowImportance"
         static let highImportanceImage = "highImportance"
     }
-    
+
     // MARK: - Properties
 
     private let importanceLabel: UILabel = {
@@ -53,9 +53,9 @@ final class ImportanceView: UIView {
         importance.setTitleTextAttributes([NSAttributedString.Key.font: font], for: .normal)
         return importance
     }()
-    
+
     weak var delegate: ImportanceViewDelegate?
-    
+
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -63,18 +63,18 @@ final class ImportanceView: UIView {
         addSubviews()
         addConstraints()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Private methods
-    
+
     private func addSubviews() {
         addSubview(importanceLabel)
         addSubview(importanceSegmentedControl)
     }
-    
+
     private func addConstraints() {
         NSLayoutConstraint.activate([
             importanceLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -95,9 +95,9 @@ final class ImportanceView: UIView {
         }
         delegate?.selectedImportance(importance: importance)
     }
-    
+
     // MARK: - Public methods
-    
+
     func changeImportance(importance: TodoItem.Importance) {
         switch importance {
         case .low: importanceSegmentedControl.selectedSegmentIndex = 0
@@ -106,6 +106,3 @@ final class ImportanceView: UIView {
         }
     }
 }
-
-    
-
