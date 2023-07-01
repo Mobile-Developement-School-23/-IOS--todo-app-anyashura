@@ -188,8 +188,19 @@ class DetailViewController: UIViewController {
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        view.setNeedsUpdateConstraints()
+        
+        let orientation = UIDevice.current.orientation
+        
+        switch orientation {
+        case .landscapeLeft, .landscapeRight:
+            deleteButton.isHidden = true
+            containerForStackView.isHidden = true
+        default:
+            deleteButton.isHidden = false
+            containerForStackView.isHidden = false
+        }
     }
+    
     
     // MARK: - Init
     
@@ -346,7 +357,7 @@ class DetailViewController: UIViewController {
         do {
             try fileCache.save(file: file)
         } catch {
-           print("Saving error")
+            print("Saving error")
         }
         delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
@@ -387,7 +398,7 @@ extension DetailViewController: TextViewDelegate {
 
 extension DetailViewController {
     func deleteAndSaveIsEnabledToggle() {
-
+        
         guard
             !(todoItemViewModel.text == nil || todoItemViewModel.text?.isEmpty == true)
         else {
@@ -444,7 +455,7 @@ extension DetailViewController: DeadLineViewDelegate {
         }
     }
 }
-// MARK: = Keyboard and observers
+// MARK: - Keyboard and observers
 extension DetailViewController {
     private func setUpObservers() {
         NotificationCenter.default.addObserver(
@@ -461,21 +472,26 @@ extension DetailViewController {
         )
     }
     
+    @objc private func dismissKeyboard() {
+        textView.endEditing(true)
+    }
+    
+    private func addTapGestureRecognizerToDismissKeyboard() {
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGestureRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGestureRecognizer)
+    }
+    
     @objc private func keyboardWillShow(notification: NSNotification) {
         guard let userInfo = notification.userInfo else { return }
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         let keyboardHeight = keyboardSize.cgRectValue.height
         scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
+        scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
     }
     
     @objc private func keyboardWillHide(notification: NSNotification) {
-        if let gestures = scrollView.gestureRecognizers {
-            for gesture in gestures {
-                if gesture is UITapGestureRecognizer {
-                    scrollView.removeGestureRecognizer(gesture)
-                }
-            }
-        }
+        scrollView.scrollIndicatorInsets = .zero
         scrollView.contentInset = UIEdgeInsets.zero
     }
     
