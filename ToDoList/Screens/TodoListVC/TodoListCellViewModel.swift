@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-
 struct TodoCellViewModel {
 
     // MARK: - Properties

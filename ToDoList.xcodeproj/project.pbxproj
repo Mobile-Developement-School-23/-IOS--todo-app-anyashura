@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B53A737A2A4FAA5600FC8EAF /* AnimationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53A73792A4FAA5600FC8EAF /* AnimationPresenter.swift */; };
 		B5604CC72A4DB0590068B3BD /* isDoneCircleControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5604CC62A4DB0590068B3BD /* isDoneCircleControl.swift */; };
 		B561433A2A460D030041AE45 /* DividedLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56143392A460D030041AE45 /* DividedLineView.swift */; };
 		B579860F2A4998A100FD742F /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B579860E2A4998A100FD742F /* TodoListViewController.swift */; };
@@ -56,6 +57,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B53A73792A4FAA5600FC8EAF /* AnimationPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationPresenter.swift; sourceTree = "<group>"; };
 		B5604CC62A4DB0590068B3BD /* isDoneCircleControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = isDoneCircleControl.swift; sourceTree = "<group>"; };
 		B56143392A460D030041AE45 /* DividedLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DividedLineView.swift; sourceTree = "<group>"; };
 		B579860E2A4998A100FD742F /* TodoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewController.swift; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 			children = (
 				B5DC31A92A4E091A00FCF5F8 /* TodoListCellViewModel.swift */,
 				B579860E2A4998A100FD742F /* TodoListViewController.swift */,
+				B53A73792A4FAA5600FC8EAF /* AnimationPresenter.swift */,
 				B57986102A49BBCE00FD742F /* TodoListTableViewCell.swift */,
 				B5DC31AC2A4E2B5A00FCF5F8 /* NewTableViewCell.swift */,
 				B5DC31AB2A4E147D00FCF5F8 /* ComponentsOfTodoListVC */,
@@ -415,6 +418,7 @@
 				B58189A82A423AA10047289F /* ImportanceView.swift in Sources */,
 				B58189AE2A42ABAD0047289F /* Extension+Date.swift in Sources */,
 				B58189B02A42ABD90047289F /* FileCacheErrors.swift in Sources */,
+				B53A737A2A4FAA5600FC8EAF /* AnimationPresenter.swift in Sources */,
 				B5AC0F892A36062400B1FE5A /* FileCache.swift in Sources */,
 				B58189BB2A4305EB0047289F /* Extension+Font.swift in Sources */,
 				B57986112A49BBCE00FD742F /* TodoListTableViewCell.swift in Sources */,

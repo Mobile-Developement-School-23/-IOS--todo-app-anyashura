@@ -43,7 +43,6 @@ final class FileCache: FileCacheProtocol {
     //save data to JSON
     func save(file: String) throws {
         let jsonTodoItems = todoItems.map { $0.json }
-        print(jsonTodoItems)
         guard JSONSerialization.isValidJSONObject(jsonTodoItems),
               let jsonData = try? JSONSerialization.data(withJSONObject: jsonTodoItems) else {
             throw FileCacheErrors.invalidJsonSerialization
