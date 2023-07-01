@@ -143,7 +143,8 @@ final class TodoListViewController: UIViewController {
         guard let todoItem = fileCache.todoItems.first(where: { $0.id == id }) else { return }
         let controller = DetailViewController(id: id)
         controller.delegate = self
-        //        controller.transitioningDelegate = self
+        controller.modalPresentationStyle = .custom
+        controller.transitioningDelegate = self
         controller.configure(todoItem: todoItem)
         self.present(controller, animated: true, completion: nil)
     }
@@ -287,5 +288,13 @@ extension TodoListViewController: HeaderForTodoListTableViewDelegate {
     func showDoneTodoButton(completedTasksAreHidden: Bool) {
         self.completedTasksAreHidden.toggle()
         updateViewModels()
+    }
+}
+
+extension TodoListViewController: UIViewControllerTransitioningDelegate {
+
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        guard let frame = selectedCellFrame else { return nil }
+        return AnimationPresenter(cellFrame: frame)
     }
 }

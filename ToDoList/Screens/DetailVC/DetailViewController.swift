@@ -188,7 +188,17 @@ class DetailViewController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        view.setNeedsUpdateConstraints()
+
+        let orientation = UIDevice.current.orientation
+
+        switch orientation {
+        case .landscapeLeft, .landscapeRight:
+            deleteButton.isHidden = true
+            containerForStackView.isHidden = true
+        default:
+            deleteButton.isHidden = false
+            containerForStackView.isHidden = false
+        }
     }
 
     // MARK: - Init
@@ -230,7 +240,6 @@ extension DetailViewController {
             todoItemViewModel.deadline = todo.deadline
             todoItemViewModel.id = todo.id
             todoItemViewModel.text = todo.text
-
             updateView()
         }
     }
@@ -260,7 +269,6 @@ extension DetailViewController {
 
     private func addConstraints() {
         NSLayoutConstraint.activate([
-
             topStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             topStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.insetsForTop.left),
             topStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: Constants.insetsForTop.right),
@@ -335,7 +343,6 @@ extension DetailViewController {
                 DDLogError("Item adding error")
             }
         }
-
         do {
             try fileCache.save(file: file)
         } catch {
@@ -380,7 +387,6 @@ extension DetailViewController: ImportanceViewDelegate {
 
 // MARK: - TextViewDelegate
 extension DetailViewController: TextViewDelegate {
-
     func textViewDidChange(with text: String) {
         todoItemViewModel.text = text
         deleteAndSaveIsEnabledToggle()
@@ -389,7 +395,6 @@ extension DetailViewController: TextViewDelegate {
 
 extension DetailViewController {
     func deleteAndSaveIsEnabledToggle() {
-
         guard
             !(todoItemViewModel.text == nil || todoItemViewModel.text?.isEmpty == true)
         else {
@@ -446,6 +451,7 @@ extension DetailViewController: DeadLineViewDelegate {
         }
     }
 }
+
 // MARK: - Keyboard and observers
 extension DetailViewController {
     private func setUpObservers() {
@@ -463,19 +469,26 @@ extension DetailViewController {
         )
     }
 
+    @objc private func dismissKeyboard() {
+        textView.endEditing(true)
+    }
+
+    private func addTapGestureRecognizerToDismissKeyboard() {
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGestureRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGestureRecognizer)
+    }
+
     @objc private func keyboardWillShow(notification: NSNotification) {
         guard let userInfo = notification.userInfo else { return }
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         let keyboardHeight = keyboardSize.cgRectValue.height
         scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
+        scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
     }
 
     @objc private func keyboardWillHide(notification: NSNotification) {
-        if let gestures = scrollView.gestureRecognizers {
-            for gesture in gestures where gesture is UITapGestureRecognizer {
-                scrollView.removeGestureRecognizer(gesture)
-            }
-        }
+        scrollView.scrollIndicatorInsets = .zero
         scrollView.contentInset = UIEdgeInsets.zero
     }
 
