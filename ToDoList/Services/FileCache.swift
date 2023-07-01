@@ -25,8 +25,13 @@ final class FileCache: FileCacheProtocol {
     }
     
     //delete item with id
-    func delete(todoItemID: String) {
-        todoItems.removeAll(where: { $0.id == todoItemID })
+    func delete(todoItemID: String) -> TodoItem? {
+        if let deletedTodo = todoItems.first(where: { $0.id == todoItemID }) {
+            todoItems.removeAll(where: { $0.id == todoItemID })
+            return deletedTodo
+        } else {
+            return nil
+        }
     }
     
     //update existing item

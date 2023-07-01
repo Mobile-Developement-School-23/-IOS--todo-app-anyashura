@@ -37,7 +37,7 @@ final class ImportanceView: UIView {
         importanceLabel.textColor = .text
         return importanceLabel
     }()
-    
+
     private lazy var importanceSegmentedControl: UISegmentedControl = {
         let importance = UISegmentedControl()
         importance.translatesAutoresizingMaskIntoConstraints = false
