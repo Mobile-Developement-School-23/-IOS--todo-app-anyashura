@@ -8,10 +8,10 @@ let package = Package(
     products: [
         .library(
             name: "FileCache",
-            targets: ["FileCache"]),
+            targets: ["FileCache"])
     ],
     dependencies: [
-        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.7.0"),
+        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.7.0")
     ],
     targets: [
 
@@ -23,6 +23,6 @@ let package = Package(
             ]),
         .testTarget(
             name: "FileCacheTests",
-            dependencies: ["FileCache"]),
+            dependencies: ["FileCache"])
     ]
 )

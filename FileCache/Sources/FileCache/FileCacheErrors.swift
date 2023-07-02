@@ -17,7 +17,7 @@ enum FileCacheErrors: LocalizedError {
     case invalidCSV
     case loadingError
     case noID
-    
+
     var errorDescription: String? {
         switch self {
         case .sameID(let id):

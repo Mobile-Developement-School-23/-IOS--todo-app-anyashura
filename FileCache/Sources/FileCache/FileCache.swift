@@ -6,7 +6,7 @@ public protocol TodoItemProtocol {
     var id: String { get }
     var json: Any { get }
     var csvString: String { get }
-    
+
     static func parseCSV(csvString: String) -> TodoItemType?
     static func parse(json: Any) -> TodoItemType?
 }
@@ -14,15 +14,15 @@ public protocol TodoItemProtocol {
 public class FileCache<Item: TodoItemProtocol> {
     // MARK: - Properties
     public private(set) var todoItems = [Item]()
-    
+
     private let rightCSVHeader = ["id", "text", "importance", "deadline", "isDone", "dateCreated", "dateEdited"]
-    
+
     // MARK: - Init
-    
+
     public init() { }
-    
+
     // MARK: - Methods
-    
+
     // add new item, if id is different
     public func add(todoItem: Item) throws {
         if !todoItems.contains(where: { $0.id == todoItem.id }) {
@@ -32,7 +32,7 @@ public class FileCache<Item: TodoItemProtocol> {
             throw FileCacheErrors.sameID(id: todoItem.id)
         }
     }
-    
+
     // delete item with id
     @discardableResult
     public func delete(todoItemID: String) -> Item? {
@@ -43,13 +43,13 @@ public class FileCache<Item: TodoItemProtocol> {
             return nil
         }
     }
-    
+
     // update existing item
     public func update(todoItem: Item) throws {
         guard let index = todoItems.firstIndex(where: { $0.id == todoItem.id }) else { throw FileCacheErrors.noID }
         todoItems[index] = todoItem
     }
-    
+
     // save data to JSON
     public func save(file: String) throws {
         let jsonTodoItems = todoItems.map { $0.json }
@@ -110,14 +110,14 @@ public class FileCache<Item: TodoItemProtocol> {
         guard let fileURL = getURL(file: file) else { throw FileCacheErrors.invalidFileAccess }
         let jsonData = try Data(contentsOf: fileURL)
         let jsonObject = try JSONSerialization.jsonObject(with: jsonData)
-        
+
         guard let jsonDict = jsonObject as? [Any] else {
             DDLogError(FileCacheErrors.invalidJSON.errorDescription ?? "")
             throw FileCacheErrors.invalidJSON
         }
         todoItems = jsonDict.compactMap { Item.parse(json: $0) as? Item }
     }
-    
+
     public func deleteFile(file: String) throws {
         guard let fileURL = getURL(file: file) else {
             DDLogError(FileCacheErrors.invalidFileAccess.errorDescription ?? "")
@@ -125,7 +125,7 @@ public class FileCache<Item: TodoItemProtocol> {
         }
         try FileManager.default.removeItem(atPath: fileURL.path)
     }
-    
+
     // get path to file
     private func getURL(file: String) -> URL? {
         let url = FileManager.default
@@ -135,4 +135,3 @@ public class FileCache<Item: TodoItemProtocol> {
         return url
     }
 }
-
