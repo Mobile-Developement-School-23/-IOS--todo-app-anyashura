@@ -75,7 +75,7 @@
 		B57986102A49BBCE00FD742F /* TodoListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListTableViewCell.swift; sourceTree = "<group>"; };
 		B57986122A4D6BD000FD742F /* AddNewItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewItemView.swift; sourceTree = "<group>"; };
 		B57986142A4D724E00FD742F /* HeaderForTodoListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderForTodoListTableView.swift; sourceTree = "<group>"; };
-		B57B7A992A4F590A00777D3B /* FileCache */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FileCache; path = ../FileCache; sourceTree = "<group>"; };
+		B57B7A992A4F590A00777D3B /* FileCache */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = FileCache; sourceTree = "<group>"; };
 		B58189A42A42244E0047289F /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		B58189A72A423AA00047289F /* ImportanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportanceView.swift; sourceTree = "<group>"; };
 		B58189AB2A42AB810047289F /* Extension+Int.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+Int.swift"; sourceTree = "<group>"; };
