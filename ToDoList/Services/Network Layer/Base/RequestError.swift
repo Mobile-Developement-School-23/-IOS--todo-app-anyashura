@@ -12,8 +12,9 @@ enum RequestError: Error {
     case invalidURL
     case noResponse
     case unauthorized
-    case unexpectedStatusCode
+    case unexpectedStatusCode(_ statusCode: Int)
     case unknown
+    case requestError
     
     var customMessage: String {
         switch self {

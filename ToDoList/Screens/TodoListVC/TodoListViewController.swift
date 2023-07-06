@@ -74,7 +74,9 @@ final class TodoListViewController: UIViewController {
         view.backgroundColor = .background
         addSubviews()
         addConstraints()
+        loadTodoList()
     }
+    
 
     private func configureNavBar() {
         navigationController?.setNavigationBarHidden(false, animated: false)
