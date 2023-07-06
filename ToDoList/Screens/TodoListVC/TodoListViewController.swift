@@ -24,6 +24,7 @@ final class TodoListViewController: UIViewController {
     }
 
     private var fileCache = FileCache<TodoItem>()
+//    private var network: NetworkingService
     private let file = "first.json"
     private var countOfDoneTasks = 0
     private var todoCellViewModels = [TodoCellViewModel]()
@@ -74,7 +75,6 @@ final class TodoListViewController: UIViewController {
         view.backgroundColor = .background
         addSubviews()
         addConstraints()
-        loadTodoList()
     }
     
 
@@ -103,6 +103,8 @@ final class TodoListViewController: UIViewController {
             addNewItem.widthAnchor.constraint(equalToConstant: 44)
         ])
     }
+    
+   
 
     @objc private func addNewItemTapped() {
         let controller = DetailViewController(id: nil)
