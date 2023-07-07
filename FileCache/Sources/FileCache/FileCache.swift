@@ -14,6 +14,14 @@ public protocol TodoItemProtocol {
 public class FileCache<Item: TodoItemProtocol> {
     // MARK: - Properties
     public private(set) var todoItems = [Item]()
+    public private(set) var isDirty: Bool {
+        get {
+            UserDefaults.standard.bool(forKey: "isDirty")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "isDirty")
+        }
+    }
 
     private let rightCSVHeader = ["id", "text", "importance", "deadline", "isDone", "dateCreated", "dateEdited"]
 
@@ -22,6 +30,10 @@ public class FileCache<Item: TodoItemProtocol> {
     public init() { }
 
     // MARK: - Methods
+    
+    public func updateIsDirtyValue(by newValue: Bool) {
+        isDirty = newValue
+    }
 
     // add new item, if id is different
     public func add(todoItem: Item) throws {

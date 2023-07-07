@@ -25,6 +25,7 @@ final class TodoListViewController: UIViewController {
 
     private var fileCache = FileCache<TodoItem>()
 //    private var network: NetworkingService
+    var activityIndicator = UIActivityIndicatorView(style: .medium)
     private let file = "first.json"
     private var countOfDoneTasks = 0
     private var todoCellViewModels = [TodoCellViewModel]()
@@ -120,6 +121,16 @@ final class TodoListViewController: UIViewController {
             DDLogError("File saving error")
         }
     }
+    
+    private func stopAnimatingActivityIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+    }
+
+    private func startAnimatingActivityIndicator() {
+        activityIndicator.startAnimating()
+        activityIndicator.isHidden = false
+    }
 
     private func ifTaskIsDone(id: String) {
         if let todoItem = fileCache.delete(todoItemID: id) {
@@ -158,7 +169,10 @@ final class TodoListViewController: UIViewController {
         countOfDoneTasks = fileCache.todoItems.filter { $0.isDone }.count
         todoListTableView.reloadData()
     }
+    
 }
+
+
 
 extension TodoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

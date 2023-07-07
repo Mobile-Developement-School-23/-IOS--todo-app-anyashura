@@ -11,7 +11,7 @@ enum RequestMaker {
     case getAllTodoItemsList
     case updateTodoItemsList(revision: String)
     case getTodoItem(id: String)
-    case createTodoItem(revision: String)
+    case addTodoItem(revision: String)
     case updateTodoItem(id: String, revision: String)
     case deleteTodoItem(id: String, revision: String)
 }
@@ -30,10 +30,10 @@ extension RequestMaker: Endpoint {
         switch self {
         case .getTodoItem(id: let id):
             return "todobackend/list/\(id)"
-        case .updateTodoItem(id: let id):
-            return "todobackend/list/\(id)"
+        case .updateTodoItem:
+            return "todobackend/list/"
         case .deleteTodoItem(id: let id):
-            return "todobackend/list/\(id)"
+            return "todobackend/list/"
         default:
             return "todobackend/list"
         }
@@ -47,7 +47,7 @@ extension RequestMaker: Endpoint {
             return .patch
         case .getTodoItem:
             return .get
-        case .createTodoItem:
+        case .addTodoItem:
             return .post
         case .updateTodoItem:
             return .put
@@ -75,7 +75,7 @@ extension RequestMaker: Endpoint {
                 "Authorization": "Bearer \(authToken)",
                 "X-Generate-Fails": "50"
             ]
-        case .createTodoItem(revision: let revision):
+        case .addTodoItem(revision: let revision):
             return [
                 "Authorization": "Bearer \(authToken)",
                 "X-Last-Known-Revision": "\(revision)",

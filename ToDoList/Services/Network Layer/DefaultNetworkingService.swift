@@ -11,6 +11,15 @@ final class DefaultNetworkingService: HTTPClient {
     
     private var revision: Int = 0
     private let deviceID: String = ""
+    private(set) var numberOfTasks = 0
+    
+    func incrementNumberOfTasks() {
+        numberOfTasks += 1
+    }
+
+    func decrementNumberOfTasks() {
+        numberOfTasks -= 1
+    }
     
     func getTodoList() async throws -> [TodoItem]? {
         let request = try createRequest(endpoint: RequestMaker.getAllTodoItemsList)
@@ -46,7 +55,7 @@ final class DefaultNetworkingService: HTTPClient {
     @discardableResult
     func addTodoItem(todoItem: TodoItem) async throws -> TodoItem? {
         let todoItemResponse = ItemResponseModel(element: makeResponseFromTodo(item: todoItem))
-        var request = try createRequest(endpoint: RequestMaker.createTodoItem(revision: "\(revision)"))
+        var request = try createRequest(endpoint: RequestMaker.addTodoItem(revision: "\(revision)"))
         let requestBody = try JSONEncoder().encode(todoItemResponse)
         request.httpBody = requestBody
         let (data, _) = try await setRequest(request)
@@ -73,7 +82,8 @@ final class DefaultNetworkingService: HTTPClient {
     
     @discardableResult
     func deleteTodoItem(id: String) async throws -> TodoItem? {
-        let request = try createRequest(endpoint: RequestMaker.deleteTodoItem(id: id, revision: "\(revision)"))
+        var request = try createRequest(endpoint: RequestMaker.deleteTodoItem(id: id, revision: "\(revision)"))
+        print(request)
         let (data, _) = try await setRequest(request)
         let response = try JSONDecoder().decode(ItemResponseModel.self, from: data)
         if let revision = response.revision {

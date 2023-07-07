@@ -9,10 +9,13 @@ import Foundation
 
 
 protocol NetworkingService {
+    var numberOfTasks: Int { get }
+    func incrementNumberOfTasks()
+    func decrementNumberOfTasks()
     func getAllTodoItemsList() async throws -> [TodoItem]
     func updateTodoItemsList(_ todoList: [TodoItem]) async throws -> [TodoItem]
     func getTodoItem(id: String) async throws -> TodoItem?
-    @discardableResult func createTodoItem(_ todoItem: TodoItem) async throws -> TodoItem?
+    @discardableResult func addTodoItem(_ todoItem: TodoItem) async throws -> TodoItem?
     @discardableResult func updateTodoItem(_ todoItem: TodoItem) async throws -> TodoItem?
     @discardableResult func deleteTodoItem(id: String) async throws -> TodoItem?
 }

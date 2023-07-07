@@ -11,6 +11,7 @@
 		8EAB2FDDCA49447A22D79642 /* Pods_ToDoListTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D19F34399C557176381B2DB3 /* Pods_ToDoListTests.framework */; };
 		B50CED492A56D22700F12621 /* ResponseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CED482A56D22700F12621 /* ResponseModels.swift */; };
 		B50CED4B2A57734A00F12621 /* RequstMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CED4A2A57734A00F12621 /* RequstMaker.swift */; };
+		B50CED4D2A582F1F00F12621 /* TodoNetworkingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CED4C2A582F1F00F12621 /* TodoNetworkingService.swift */; };
 		B53A737C2A4FB1DD00FC8EAF /* AnimationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53A737B2A4FB1DD00FC8EAF /* AnimationPresenter.swift */; };
 		B53DDBA82A543A0C00D9F615 /* NetworkingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DDBA72A543A0C00D9F615 /* NetworkingService.swift */; };
 		B53DDBAA2A543A3500D9F615 /* DefaultNetworkingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DDBA92A543A3500D9F615 /* DefaultNetworkingService.swift */; };
@@ -78,6 +79,7 @@
 		ADDF1502E34F37EABCDED9AD /* Pods-ToDoList-ToDoListUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList-ToDoListUITests.debug.xcconfig"; path = "Target Support Files/Pods-ToDoList-ToDoListUITests/Pods-ToDoList-ToDoListUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		B50CED482A56D22700F12621 /* ResponseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseModels.swift; sourceTree = "<group>"; };
 		B50CED4A2A57734A00F12621 /* RequstMaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequstMaker.swift; sourceTree = "<group>"; };
+		B50CED4C2A582F1F00F12621 /* TodoNetworkingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoNetworkingService.swift; sourceTree = "<group>"; };
 		B53A737B2A4FB1DD00FC8EAF /* AnimationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationPresenter.swift; sourceTree = "<group>"; };
 		B53DDBA72A543A0C00D9F615 /* NetworkingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingService.swift; sourceTree = "<group>"; };
 		B53DDBA92A543A3500D9F615 /* DefaultNetworkingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultNetworkingService.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 				B53DDBB22A543CAB00D9F615 /* RequestMethod.swift */,
 				B53DDBAC2A543BC800D9F615 /* Endpoint.swift */,
 				B53DDBAE2A543C6E00D9F615 /* HTTPClient.swift */,
+				B50CED4A2A57734A00F12621 /* RequstMaker.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -208,9 +211,9 @@
 			children = (
 				B50CED472A56B87300F12621 /* Base */,
 				B53DDBA72A543A0C00D9F615 /* NetworkingService.swift */,
-				B50CED4A2A57734A00F12621 /* RequstMaker.swift */,
 				B50CED482A56D22700F12621 /* ResponseModels.swift */,
 				B53DDBA92A543A3500D9F615 /* DefaultNetworkingService.swift */,
+				B50CED4C2A582F1F00F12621 /* TodoNetworkingService.swift */,
 			);
 			path = "Network Layer";
 			sourceTree = "<group>";
@@ -595,6 +598,7 @@
 				B58189AC2A42AB810047289F /* Extension+Int.swift in Sources */,
 				B5DC31AD2A4E2B5A00FCF5F8 /* NewTableViewCell.swift in Sources */,
 				B53DDBA82A543A0C00D9F615 /* NetworkingService.swift in Sources */,
+				B50CED4D2A582F1F00F12621 /* TodoNetworkingService.swift in Sources */,
 				B5DC31B02A4EF4FE00FCF5F8 /* TodoItemViewModel.swift in Sources */,
 				B53DDBAF2A543C6E00D9F615 /* HTTPClient.swift in Sources */,
 				B53DDBBB2A5588A100D9F615 /* FileCacheProtocol.swift in Sources */,
