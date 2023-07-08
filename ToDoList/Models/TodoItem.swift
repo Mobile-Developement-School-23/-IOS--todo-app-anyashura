@@ -162,3 +162,34 @@ extension TodoItem {
         static let dateEdited = "dateEdited"
     }
 }
+
+extension TodoItem {
+    init(_ todoItemNetwork: TodoItemNetwork) {
+        id = todoItemNetwork.id
+        text = todoItemNetwork.text
+        importance = Importance(rawValue: todoItemNetwork.importance) ?? .normal
+        if let updatedDeadline = todoItemNetwork.deadline {
+            deadline = updatedDeadline.dateFormat
+        } else {
+            deadline = nil
+        }
+        isDone = todoItemNetwork.isDone
+        dateCreated = todoItemNetwork.dateCreated.dateFormat ?? .now
+        if let updatedDateEdited = todoItemNetwork.dateEdited {
+            dateEdited = updatedDateEdited.dateFormat
+        } else {
+            dateEdited = nil
+        }
+    }
+    
+    func done() -> TodoItem {
+        TodoItem(id: self.id,
+                 text: self.text,
+                 importance: self.importance,
+                 deadline: self.deadline,
+                 isDone: self.isDone == false ? true : false,
+                 dateCreated: self.dateCreated,
+                 dateEdited: self.dateEdited)
+    }
+
+}

@@ -14,15 +14,15 @@ public protocol TodoItemProtocol {
 public class FileCache<Item: TodoItemProtocol> {
     // MARK: - Properties
     public private(set) var todoItems = [Item]()
-
+    
     private let rightCSVHeader = ["id", "text", "importance", "deadline", "isDone", "dateCreated", "dateEdited"]
-
+    
     // MARK: - Init
-
+    
     public init() { }
-
+    
     // MARK: - Methods
-
+    
     // add new item, if id is different
     public func add(todoItem: Item) throws {
         if !todoItems.contains(where: { $0.id == todoItem.id }) {
@@ -31,6 +31,11 @@ public class FileCache<Item: TodoItemProtocol> {
             DDLogError(FileCacheErrors.sameID(id: todoItem.id).errorDescription ?? "")
             throw FileCacheErrors.sameID(id: todoItem.id)
         }
+    }
+    
+    public func removeAll() {
+        todoItems.removeAll()
+    
     }
 
     // delete item with id
@@ -105,17 +110,72 @@ public class FileCache<Item: TodoItemProtocol> {
             todoItems.append(todoItem)
         }
     }
-    // load data from JSON
-    public func load(file: String) throws {
-        guard let fileURL = getURL(file: file) else { throw FileCacheErrors.invalidFileAccess }
-        let jsonData = try Data(contentsOf: fileURL)
-        let jsonObject = try JSONSerialization.jsonObject(with: jsonData)
+    
+    // save data to JSON
+    public func save(file: String, completion: @escaping (Result<Void, Error>) -> Void) {
 
-        guard let jsonDict = jsonObject as? [Any] else {
-            DDLogError(FileCacheErrors.invalidJSON.errorDescription ?? "")
-            throw FileCacheErrors.invalidJSON
+        DispatchQueue.global().async(qos: .background) { [weak self] in
+
+            guard let self = self else { return }
+            let jsonTodoItems = self.todoItems.map { $0.json }
+            guard JSONSerialization.isValidJSONObject(jsonTodoItems),
+                  let jsonData = try? JSONSerialization.data(withJSONObject: jsonTodoItems) else {
+                return completion(.failure(FileCacheErrors.invalidJsonSerialization))
+            }
+
+            guard let fileURL = self.getURL(file: file) else {
+                DispatchQueue.main.async {
+                    completion(.failure(FileCacheErrors.invalidFileAccess))
+                }
+                return
+            }
+            do {
+                try jsonData.write(to: fileURL)
+                DispatchQueue.main.async {
+                    completion(.success(()))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(FileCacheErrors.invalidJSON))
+                }
+            }
         }
-        todoItems = jsonDict.compactMap { Item.parse(json: $0) as? Item }
+    }
+
+    public func loadFile(file: String, completion: @escaping (Result<[Item], Error>) -> Void) {
+        
+        DispatchQueue.global().async { [weak self] in
+            
+            guard let self = self else { return }
+            guard let fileURL = self.getURL(file: file) else {
+                DispatchQueue.main.async {
+                    completion(.failure(FileCacheErrors.invalidFileAccess))
+                }
+                return
+            }
+            do {
+                let jsonData = try Data(contentsOf: fileURL)
+                let jsonObject = try JSONSerialization.jsonObject(with: jsonData)
+                
+                guard let jsonDict = jsonObject as? [Any] else {
+                    DispatchQueue.main.async {
+                        DDLogError(FileCacheErrors.invalidJSON.errorDescription ?? "")
+                    }
+                    return
+                }
+                
+                self.todoItems.removeAll()
+                self.todoItems = jsonDict.compactMap { Item.parse(json: $0) as? Item }
+                
+                DispatchQueue.main.async {
+                    completion(.success((self.todoItems)))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(FileCacheErrors.invalidJSON))
+                }
+            }
+        }
     }
 
     public func deleteFile(file: String) throws {
