@@ -17,15 +17,5 @@ enum RequestError: Error {
     case notFound
     case requestError
     case errorFromServer
-    
-    var customMessage: String {
-        switch self {
-        case .decode:
-            return "Decode error"
-        case .unauthorized:
-            return "Session expired"
-        default:
-            return "Unknown error"
-        }
-    }
+    case connectionError
 }

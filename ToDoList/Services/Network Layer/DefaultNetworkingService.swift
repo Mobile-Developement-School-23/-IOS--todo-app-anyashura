@@ -7,146 +7,178 @@
 
 import Foundation
 
-final class DefaultNetworkingService: HTTPClient {
-    
-    private var revision: Int = 0
-    private let deviceID: String = ""
-    private(set) var numberOfTasks = 0
-    
-    func incrementNumberOfTasks() {
-        numberOfTasks += 1
-    }
 
-    func decrementNumberOfTasks() {
-        numberOfTasks -= 1
+
+final class DefaultNetworkingService: NetworkingService {
+    
+    enum NetworkError: Error {
+        case invalidURL
+        case requestError
+        case errorWithAuth
+        case unknownError
+        case serviceError(_ statusCode: Int)
+        case notFound
     }
     
-    func getTodoList() async throws -> [TodoItem]? {
-        let request = try createRequest(endpoint: RequestMaker.getAllTodoItemsList)
-        let (data, _) = try await setRequest(request)
-        let response = try JSONDecoder().decode(ListResponseModel.self, from: data)
-        return response.list.compactMap(makeTodoFromResponse(itemFromResponse:))
+    private let queue = DispatchQueue.global()
+    private let bearerToken = ""
+    private let path = "https://beta.mrdekk.ru/todobackend/list"
+    
+    private var requestTimeout = 3.0
+    
+    private var currentRevision: Int
+    
+    init() {
+        self.currentRevision = UserDefaults.standard.integer(forKey: "revision")
+
     }
     
-    func updateTodoList(todoList: [TodoItem]) async throws -> [TodoItem] {
-        let listRsponseModel = ListResponseModel(list: todoList.map { makeResponseFromTodo(item: $0)})
-        let requestBody = try JSONEncoder().encode(listRsponseModel)
-        var request = try createRequest(endpoint: RequestMaker.updateTodoItemsList(revision: "\(revision)"))
-        request.httpBody = requestBody
-        
-        let (data, _) = try await setRequest(request)
-        let response = try JSONDecoder().decode(ListResponseModel.self, from: data)
-        if let revision = response.revision {
-            self.revision = revision
+    func createRequest(additionalPath: String? = nil, revision: Int? = nil, requestMethod: RequestMethod) -> URLRequest? {
+        var urlComponents = URLComponents()
+        if let additionalPath = additionalPath {
+            urlComponents.path = "/\(path)/\(additionalPath)"
+        } else {
+            urlComponents.path = "/\(path)"
         }
-        return response.list.compactMap(makeTodoFromResponse(itemFromResponse: ))
-    }
-    
-    func getTodoItem(id: String) async throws -> TodoItem? {
-        let request = try createRequest(endpoint: RequestMaker.getTodoItem(id: id))
-        let (data, _) = try await setRequest(request)
-        let response = try JSONDecoder().decode(ItemResponseModel.self, from: data)
-        if let revision = response.revision {
-            self.revision = revision
+        guard let url = URL(string: path) else {
+            return nil
         }
-        return makeTodoFromResponse(itemFromResponse: response.element)
-    }
-    
-    @discardableResult
-    func addTodoItem(todoItem: TodoItem) async throws -> TodoItem? {
-        let todoItemResponse = ItemResponseModel(element: makeResponseFromTodo(item: todoItem))
-        var request = try createRequest(endpoint: RequestMaker.addTodoItem(revision: "\(revision)"))
-        let requestBody = try JSONEncoder().encode(todoItemResponse)
-        request.httpBody = requestBody
-        let (data, _) = try await setRequest(request)
-        let response = try JSONDecoder().decode(ItemResponseModel.self, from: data)
-        if let revision = response.revision {
-            self.revision = revision
+        var urlRequest = URLRequest(url: url)
+        urlRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("20", forHTTPHeaderField: "X-Generate-Fails")
+        urlRequest.httpMethod = requestMethod.rawValue
+        urlRequest.timeoutInterval = requestTimeout
+        print(urlRequest)
+        if let revision = revision {
+            urlRequest.setValue("\(revision)", forHTTPHeaderField: "X-Last-Known-Revision")
         }
-        return makeTodoFromResponse(itemFromResponse: response.element)
+        return urlRequest
     }
     
-    @discardableResult
-    func updateTodoItem(todoItem: TodoItem) async throws -> TodoItem? {
-        let todoItemResponse = ItemResponseModel(element: makeResponseFromTodo(item: todoItem))
-        let requestBody = try JSONEncoder().encode(todoItemResponse)
-        var request = try createRequest(endpoint: RequestMaker.updateTodoItem(id: todoItem.id, revision: "\(revision)"))
-        request.httpBody = requestBody
-        let (data, _) = try await setRequest(request)
-        let response = try JSONDecoder().decode(ItemResponseModel.self, from: data)
-        if let revision = response.revision {
-            self.revision = revision
-        }
-        return makeTodoFromResponse(itemFromResponse: response.element)
-    }
-    
-    @discardableResult
-    func deleteTodoItem(id: String) async throws -> TodoItem? {
-        var request = try createRequest(endpoint: RequestMaker.deleteTodoItem(id: id, revision: "\(revision)"))
-        print(request)
-        let (data, _) = try await setRequest(request)
-        let response = try JSONDecoder().decode(ItemResponseModel.self, from: data)
-        if let revision = response.revision {
-            self.revision = revision
-        }
-        return makeTodoFromResponse(itemFromResponse: response.element)
-    }
-    
-    private func setRequest(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let response = response as? HTTPURLResponse else {
-            throw RequestError.noResponse
-        }
-        try checkErrors(statusCode: response.statusCode)
-        return (data, response)
-    }
-    
-    func checkErrors(statusCode: Int) throws {
-        switch statusCode {
-        case 100 ... 299:
+    func getItemsList(completion: @escaping (Result<[TodoItem], Error>) -> Void) {
+        guard let urlRequest = createRequest(revision: currentRevision, requestMethod: RequestMethod.get)
+                
+        else {
+            completion(.failure(RequestError.invalidURL))
             return
-        case 400:
-            throw RequestError.requestError
-        case 401:
-            throw RequestError.unauthorized
-        case 404:
-            throw RequestError.notFound
-        case (500...599):
-            throw RequestError.errorFromServer
-        default:
-            throw RequestError.unexpectedStatusCode(statusCode)
+        }
+        print(urlRequest)
+        let task = createTaskForList(completion: completion, urlRequest: urlRequest)
+        queue.async {
+            task.resume()
         }
     }
     
-    private func makeTodoFromResponse(itemFromResponse: Item) -> TodoItem? {
-        guard let importance = TodoItem.Importance(rawValue: itemFromResponse.importance),
-              let dateCreated = itemFromResponse.dateCreated.dateFormat else { return nil }
-        let id = String(itemFromResponse.id)
-        let deadline = itemFromResponse.deadline?.dateFormat
-        let dateEdited = itemFromResponse.dateEdited.dateFormat
-        return TodoItem(
-            id: id,
-            text: itemFromResponse.text,
-            importance: importance,
-            deadline: deadline,
-            isDone: itemFromResponse.isDone,
-            dateCreated: dateCreated,
-            dateEdited: dateEdited
-        )
+    func addTodoItem(_ todoItem: TodoItem, completion: @escaping (Result<TodoItem, Error>) -> Void) {
+        guard var urlRequest = createRequest(revision: currentRevision, requestMethod: RequestMethod.post) else { completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        let networkRequest = ServerRequestElement(element: TodoItemNetwork(todoItem))
+        urlRequest.httpBody = try? JSONEncoder().encode(networkRequest)
+        let task = createTaskForElement(completion: completion, urlRequest: urlRequest)
+        queue.async {
+            task.resume()
+        }
     }
     
-    private func makeResponseFromTodo(item: TodoItem) -> Item {
-        let itemOfResponseModel = Item(
-            id: item.id,
-            text: item.text,
-            importance: item.importance.rawValue,
-            deadline: item.deadline?.timeStamp,
-            isDone: item.isDone,
-            dateCreated: item.dateCreated.timeStamp,
-            dateEdited: item.dateEdited?.timeStamp ?? item.dateCreated.timeStamp,
-            lastUpdatedBy: deviceID
-        )
-        return itemOfResponseModel
+    func changeTodoItem(_ todoItem: TodoItem, completion: @escaping (Result<TodoItem, Error>) -> Void) {
+        guard var urlRequest =  createRequest(additionalPath: todoItem.id, revision: currentRevision,  requestMethod: RequestMethod.put) else {
+            completion(.failure(NetworkError.invalidURL)); return }
+        let networkRequest = ServerRequestElement(element: TodoItemNetwork(todoItem))
+        urlRequest.httpBody = try? JSONEncoder().encode(networkRequest)
+        let task = createTaskForElement(completion: completion, urlRequest: urlRequest)
+        queue.async {
+            task.resume()
+        }
+    }
+    
+    func deleteTodoItem(_ id: String, completion: @escaping (Result<TodoItem, Error>) -> Void) {
+        guard let urlRequest = createRequest(additionalPath: id,revision: currentRevision, requestMethod: RequestMethod.delete) else {
+            completion(.failure(NetworkError.invalidURL)); return }
+        let task = createTaskForElement(completion: completion, urlRequest: urlRequest)
+        queue.async {
+            task.resume()
+        }
+    }
+    
+    func getItem(id: String, completion: @escaping (Result<TodoItem, Error>) -> Void) {
+        guard let urlRequest = createRequest(additionalPath: id,revision: currentRevision, requestMethod: RequestMethod.get) else {
+            completion(.failure(NetworkError.invalidURL)); return }
+        let task = createTaskForElement(completion: completion, urlRequest: urlRequest)
+        queue.async {
+            task.resume()
+        }
+    }
+    
+    func putAllTodoItems(_ todoItems: [TodoItem], completion: @escaping (Result<[TodoItem], Error>) -> Void) {
+        guard var urlRequest = createRequest(revision: currentRevision, requestMethod: RequestMethod.patch) else {
+            completion(.failure(NetworkError.invalidURL)); return }
+        let todoItemsNetwork = todoItems.map({TodoItemNetwork($0)})
+//        let networkRequest = ServerRequestList(list: todoItemsNetwork)
+        urlRequest.httpBody = try? JSONEncoder().encode(todoItemsNetwork)
+        let task = createTaskForList(completion: completion, urlRequest: urlRequest)
+        queue.async {
+            task.resume()
+        }
+    }
+    
+    private func createTaskForList(completion: @escaping (Result<[TodoItem], Error>) -> Void,
+                        urlRequest: URLRequest) -> URLSessionDataTask {
+        let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+            } else if response != nil, let data = data,
+                      let networkResponse = try? JSONDecoder().decode(ServerResponseList.self, from: data) {
+                let todoItems = networkResponse.list.map({TodoItem($0)})
+                self.currentRevision = networkResponse.revision
+                self.saveRevision(revision: self.currentRevision)
+                completion(.success(todoItems))
+            } else if let response = response as? HTTPURLResponse {
+                completion(.failure(self.checkErrors(statusCode: response.statusCode)))
+            } else {
+                completion(.failure(NetworkError.unknownError))
+            }
+        }
+        return task
+    }
+    
+    
+    private func createTaskForElement(completion: @escaping (Result<TodoItem, Error>) -> Void,
+                           urlRequest: URLRequest) -> URLSessionDataTask {
+        let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+            } else if let data = data,
+                      let networkResponse = try? JSONDecoder().decode(ServerResponseElement.self, from: data) {
+                self.currentRevision = networkResponse.revision
+                self.saveRevision(revision: self.currentRevision)
+                completion(.success(TodoItem(networkResponse.element)))
+            } else if let response = response as? HTTPURLResponse {
+                completion(.failure(self.checkErrors(statusCode: response.statusCode)))
+            } else {
+                completion(.failure(NetworkError.unknownError))
+            }
+        }
+        return task
+    }
+    
+    private func saveRevision(revision: Int) {
+        currentRevision = revision
+        UserDefaults.standard.set(currentRevision, forKey: "revision")
+    }
+    private func checkErrors(statusCode: Int) -> RequestError {
+        switch statusCode {
+        case 400:
+            return RequestError.requestError
+        case 401:
+            return RequestError.unauthorized
+        case 404:
+            return RequestError.notFound
+        case (500...599):
+            return RequestError.errorFromServer
+        default:
+            return RequestError.unexpectedStatusCode(statusCode)
+        }
     }
 }
 

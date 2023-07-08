@@ -7,45 +7,95 @@
 
 import Foundation
 
-struct ListResponseModel: Codable {
+struct ServerResponseList: Codable {
     let status: String
-    let list: [Item]
-    let revision: Int?
-    
-    init(status: String = "ok", list: [Item], revision: Int? = nil) {
-        self.status = status
-        self.list = list
-        self.revision = revision
-    }
+    let list: [TodoItemNetwork]
+    let revision: Int
 }
 
-struct ItemResponseModel: Codable {
+struct ServerResponseElement: Codable {
     let status: String
-    let element: Item
-    let revision: Int?
-    
-    init(status: String = "ok", element: Item, revision: Int? = nil) {
-        self.status = status
+    let element: TodoItemNetwork
+    let revision: Int
+}
+
+struct ServerRequestElement: Codable {
+    var element: TodoItemNetwork
+    init(element: TodoItemNetwork) {
         self.element = element
-        self.revision = revision
     }
 }
 
-struct Item: Codable {
+struct ServerRequestList: Codable {
+    var list: [TodoItemNetwork]
+    init(list: [TodoItemNetwork]) {
+        self.list = list
+    }
+}
+
+struct TodoItemNetwork: Codable {
     let id: String
     let text: String
     let importance: String
-    let deadline: Int?
     let isDone: Bool
+    let deadline: Int?
     let dateCreated: Int
-    let dateEdited: Int
+    let dateEdited: Int?
     let lastUpdatedBy: String
     
-    private enum CodingKeys: String, CodingKey {
-        case id, text, importance, deadline
+    init(_ todoItem: TodoItem) {
+        id = todoItem.id
+        text = todoItem.text
+        importance = todoItem.importance.rawValue
+        isDone = todoItem.isDone
+        deadline = todoItem.deadline == nil ? nil : todoItem.deadline?.timeStamp
+        dateCreated = todoItem.dateCreated.timeStamp
+        dateEdited = todoItem.dateEdited == nil ? nil : todoItem.dateEdited?.timeStamp
+        lastUpdatedBy = ""
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.text = try container.decode(String.self, forKey: .text)
+        self.importance = try container.decode(String.self, forKey: .importance)
+        self.isDone = try container.decode(Bool.self, forKey: .isDone)
+        do {
+            self.deadline = try container.decode(Int?.self, forKey: .deadline)
+        } catch {
+            self.deadline = nil
+        }
+        self.dateCreated = try container.decode(Int.self, forKey: .dateCreated)
+        self.dateEdited = try container.decode(Int?.self, forKey: .dateEdited)
+        self.lastUpdatedBy = try container.decode(String.self, forKey: .lastUpdatedBy)
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case text
+        case importance
         case isDone = "done"
+        case deadline
         case dateCreated = "created_at"
         case dateEdited = "changed_at"
         case lastUpdatedBy = "last_updated_by"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(text, forKey: .text)
+        try container.encode(importance, forKey: .importance)
+        try container.encode(isDone, forKey: .isDone)
+        if deadline != nil {
+            try container.encode(deadline, forKey: .deadline)
+        }
+        try container.encode(dateCreated, forKey: .dateCreated)
+        if dateEdited != nil {
+            try container.encode(dateEdited, forKey: .dateEdited)
+        } else {
+            try container.encode(dateCreated, forKey: .dateEdited)
+        }
+        try container.encode(lastUpdatedBy, forKey: .lastUpdatedBy)
     }
 }

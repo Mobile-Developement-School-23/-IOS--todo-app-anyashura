@@ -18,7 +18,7 @@ struct TodoCellViewModel {
     var deadline: NSMutableAttributedString?
     var isDone: Bool {
         didSet {
-            text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: text, done: isDone)
+            text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: text, isDone: isDone)
         }
     }
 
@@ -30,7 +30,7 @@ struct TodoCellViewModel {
         self.isDone = item.isDone
 
         let textMutableString = TodoCellViewModel.getImportantTextIfNeeded(for: item.text, importance: item.importance)
-        text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: textMutableString, done: item.isDone)
+        text = TodoCellViewModel.getStrikeThroughTextIfNeeded(for: textMutableString, isDone: item.isDone)
 
         guard let deadline = item.deadline else { return }
         let dateString = TodoCellViewModel.dateToString(from: deadline)
@@ -53,8 +53,8 @@ struct TodoCellViewModel {
         return fullTextString
     }
 
-    private static func getStrikeThroughTextIfNeeded(for string: NSMutableAttributedString, done: Bool) -> NSMutableAttributedString {
-        if done {
+    private static func getStrikeThroughTextIfNeeded(for string: NSMutableAttributedString, isDone: Bool) -> NSMutableAttributedString {
+        if isDone {
             string.addAttributes(
                 [
                     .foregroundColor: UIColor.placeholderText,

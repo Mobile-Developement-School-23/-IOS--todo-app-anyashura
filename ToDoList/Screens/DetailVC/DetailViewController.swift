@@ -11,6 +11,9 @@ import FileCache
 
 protocol DetailViewControllerDelegate: AnyObject {
     func itemDidChanged()
+    func removeFromView(id: String)
+    func updateFromView(todoItemView: TodoItemViewModel)
+    
 }
 
 class DetailViewController: UIViewController {
@@ -182,11 +185,11 @@ class DetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .background
         secondDividedLine.isHidden = true
-        do {
-            try fileCache.load(file: file)
-        } catch {
-            DDLogError("File loading error")
-        }
+//        do {
+//            try fileCache.loadFile(file: <#T##String#>, completion: <#T##(Result<[TodoItem], Error>) -> Void#>)
+//        } catch {
+//            DDLogError("File loading error")
+//        }
         addSubviews()
         addConstraints()
         setUpObservers()
@@ -332,36 +335,37 @@ extension DetailViewController {
     }
     
     @objc private func saveButtonTapped() {
-        guard
-            let text = todoItemViewModel.text
-        else {
-            return
-        }
-        let importance = todoItemViewModel.importance
-        
-        let todoItem: TodoItem
-        if let id = self.id {
-            todoItem = TodoItem(id: id, text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
-            do {
-                try fileCache.update(todoItem: todoItem)
-            } catch {
-                DDLogError("File updating error")
-            }
-        } else {
-            todoItem = TodoItem(text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
-            do {
-                try fileCache.add(todoItem: todoItem)
-            } catch {
-                DDLogError("Item adding error")
-            }
-        }
-        do {
-            try fileCache.save(file: file)
-        } catch {
-            DDLogError("File saving error")
-        }
-        
-        delegate?.itemDidChanged()
+        delegate?.updateFromView(todoItemView: todoItemViewModel)
+//        guard
+//            let text = todoItemViewModel.text
+//        else {
+//            return
+//        }
+//        let importance = todoItemViewModel.importance
+//
+//        let todoItem: TodoItem
+//        if let id = self.id {
+//            todoItem = TodoItem(id: id, text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
+//            do {
+//                try fileCache.update(todoItem: todoItem)
+//            } catch {
+//                DDLogError("File updating error")
+//            }
+//        } else {
+//            todoItem = TodoItem(text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
+//            do {
+//                try fileCache.add(todoItem: todoItem)
+//            } catch {
+//                DDLogError("Item adding error")
+//            }
+//        }
+//        do {
+//            try fileCache.save(file: file)
+//        } catch {
+//            DDLogError("File saving error")
+//        }
+//
+//        delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -369,16 +373,15 @@ extension DetailViewController {
         guard let id = todoItemViewModel.id else {
             return
         }
-        deleteTodoItem(id: id)
-        fileCache.delete(todoItemID: id)
-        do {
-            try fileCache.save(file: file)
-            updateList()
-        } catch {
-            DDLogError("File saving error")
-        }
-        
-        delegate?.itemDidChanged()
+        delegate?.removeFromView(id: id)
+//        fileCache.delete(todoItemID: id)
+//        do {
+//            try fileCache.save(file: file)
+//        } catch {
+//            DDLogError("File saving error")
+//        }
+//
+//        delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -392,6 +395,7 @@ extension DetailViewController {
         secondDividedLine.isHidden = true
     }
 }
+
 
 // MARK: - ImportanceViewDelegate
 extension DetailViewController: ImportanceViewDelegate {
@@ -512,99 +516,4 @@ extension DetailViewController {
         view.endEditing(true)
     }
 }
-// Network
-extension DetailViewController{
 
-    private func addTodoItem(_ todoItem: TodoItem) {
-        Task(priority: .userInitiated) { [weak self] in
-            guard let self = self else { return }
-            do {
-                try await self.networkingService.addTodoItem(todoItem: todoItem)
-                if let changesSaved = self.changesSaved {
-                    changesSaved()
-                }
-            } catch {
-                DDLogError(error.localizedDescription)
-                self.fileCache.updateIsDirtyValue(by: true)
-                if let errorOccurred = self.errorOccurred {
-                    errorOccurred(error.localizedDescription)
-                }
-            }
-        }
-    }
-
-    private func updateTodoItem(_ todoItem: TodoItem) {
-        Task(priority: .userInitiated) { [weak self] in
-            guard let self = self else { return }
-            do {
-                try await self.networkingService.updateTodoItem(todoItem: todoItem)
-                if let changesSaved = self.changesSaved {
-                    changesSaved()
-                }
-            } catch {
-                DDLogError(error.localizedDescription)
-                self.fileCache.updateIsDirtyValue(by: true)
-                if let errorOccurred = self.errorOccurred {
-                    errorOccurred(error.localizedDescription)
-                }
-            }
-        }
-    }
-
-    private func deleteTodoItem(id: String) {
-        Task(priority: .userInitiated) { [weak self] in
-            guard let self = self else { return }
-            do {
-                try await self.networkingService.deleteTodoItem(id: id)
-                if let changesSaved = self.changesSaved {
-                    changesSaved()
-                }
-            } catch {
-                DDLogError(error.localizedDescription)
-                self.fileCache.updateIsDirtyValue(by: true)
-                if let errorOccurred = self.errorOccurred {
-                    errorOccurred(error.localizedDescription)
-                }
-            }
-        }
-    }
-
-    private func updateList() {
-        Task(priority: .userInitiated) { [weak self] in
-            guard let self = self else { return }
-            do {
-                let currentTodoList = fileCache.todoItems
-                let todoList = try await self.networkingService.updateTodoList(todoList: currentTodoList)
-                self.updateCache(with: todoList)
-                self.fileCache.updateIsDirtyValue(by: false)
-                if let changesSaved = self.changesSaved {
-                    changesSaved()
-                }
-            } catch {
-                DDLogError(error.localizedDescription)
-                if let errorOccurred = self.errorOccurred {
-                    errorOccurred(error.localizedDescription)
-                }
-            }
-        }
-    }
-    
-    private func updateCache(with todoList: [TodoItem]) {
-//        fileCache.todoItems.forEach(fileCache.delete(todoItemID: ))
-        saveDataToLocalStorage()
-        if let dataChanged = dataChanged {
-            dataChanged()
-        }
-    }
-
-    private func saveDataToLocalStorage() {
-        Task(priority: .utility) { [weak self] in
-            guard let self = self else { return }
-            do {
-                try self.fileCache.save(file: self.file)
-            } catch {
-                DDLogError(error.localizedDescription)
-            }
-        }
-    }
-}
