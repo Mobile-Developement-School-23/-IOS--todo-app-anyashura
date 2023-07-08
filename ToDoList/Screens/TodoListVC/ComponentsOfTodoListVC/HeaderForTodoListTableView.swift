@@ -11,7 +11,7 @@ import UIKit
 // MARK: - Protocol
 
 protocol HeaderForTodoListTableViewDelegate: AnyObject {
-    func showDoneTodoButton(completedTasksAreHidden: Bool)
+    @MainActor func showDoneTodoButton(completedTasksAreHidden: Bool)
 }
 
 // MARK: - Class

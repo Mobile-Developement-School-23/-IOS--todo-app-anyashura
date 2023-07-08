@@ -9,8 +9,8 @@ import Foundation
 import UIKit
 
 protocol DeadLineViewDelegate: AnyObject {
-    func dateButtonTapped()
-    func switcherTapped(isOn: Bool)
+    @MainActor func dateButtonTapped()
+    @MainActor func switcherTapped(isOn: Bool)
 }
 
 final class DeadLineView: UIView {

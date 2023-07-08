@@ -10,6 +10,7 @@
 		032887EA3C1F44D8F6B8149B /* Pods_ToDoList.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FFEB22A93614D15EC6DD0EB2 /* Pods_ToDoList.framework */; };
 		8EAB2FDDCA49447A22D79642 /* Pods_ToDoListTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D19F34399C557176381B2DB3 /* Pods_ToDoListTests.framework */; };
 		B53A737C2A4FB1DD00FC8EAF /* AnimationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53A737B2A4FB1DD00FC8EAF /* AnimationPresenter.swift */; };
+		B53DDBB72A54B05800D9F615 /* Extension+URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DDBB62A54B05800D9F615 /* Extension+URLSession.swift */; };
 		B5604CC72A4DB0590068B3BD /* isDoneCircleControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5604CC62A4DB0590068B3BD /* isDoneCircleControl.swift */; };
 		B561433A2A460D030041AE45 /* DividedLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56143392A460D030041AE45 /* DividedLineView.swift */; };
 		B579860F2A4998A100FD742F /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B579860E2A4998A100FD742F /* TodoListViewController.swift */; };
@@ -69,6 +70,7 @@
 		8CD3A1B3F7BEAC2C5DDCBE98 /* Pods-ToDoListTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoListTests.release.xcconfig"; path = "Target Support Files/Pods-ToDoListTests/Pods-ToDoListTests.release.xcconfig"; sourceTree = "<group>"; };
 		ADDF1502E34F37EABCDED9AD /* Pods-ToDoList-ToDoListUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList-ToDoListUITests.debug.xcconfig"; path = "Target Support Files/Pods-ToDoList-ToDoListUITests/Pods-ToDoList-ToDoListUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		B53A737B2A4FB1DD00FC8EAF /* AnimationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationPresenter.swift; sourceTree = "<group>"; };
+		B53DDBB62A54B05800D9F615 /* Extension+URLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+URLSession.swift"; sourceTree = "<group>"; };
 		B5604CC62A4DB0590068B3BD /* isDoneCircleControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = isDoneCircleControl.swift; sourceTree = "<group>"; };
 		B56143392A460D030041AE45 /* DividedLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DividedLineView.swift; sourceTree = "<group>"; };
 		B579860E2A4998A100FD742F /* TodoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewController.swift; sourceTree = "<group>"; };
@@ -221,6 +223,7 @@
 				B58189BA2A4305EB0047289F /* Extension+Font.swift */,
 				B58189B82A4301850047289F /* Extension+Color.swift */,
 				B58189AD2A42ABAD0047289F /* Extension+Date.swift */,
+				B53DDBB62A54B05800D9F615 /* Extension+URLSession.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -561,6 +564,7 @@
 				B579860F2A4998A100FD742F /* TodoListViewController.swift in Sources */,
 				B58189BF2A439BFC0047289F /* ConstantsText.swift in Sources */,
 				B58189A52A42244E0047289F /* TextView.swift in Sources */,
+				B53DDBB72A54B05800D9F615 /* Extension+URLSession.swift in Sources */,
 				B58189B52A42B84D0047289F /* DeadlineView.swift in Sources */,
 				B57986152A4D724E00FD742F /* HeaderForTodoListTableView.swift in Sources */,
 				B561433A2A460D030041AE45 /* DividedLineView.swift in Sources */,
@@ -759,6 +763,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -790,6 +795,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
