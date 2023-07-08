@@ -10,7 +10,7 @@ import CocoaLumberjackSwift
 import FileCache
 
 protocol DetailViewControllerDelegate: AnyObject {
-    func itemDidChanged()
+    @MainActor func itemDidChanged()
 }
 
 class DetailViewController: UIViewController {
