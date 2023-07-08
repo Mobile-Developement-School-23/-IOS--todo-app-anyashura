@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 protocol ImportanceViewDelegate: AnyObject {
-    func selectedImportance(importance: TodoItem.Importance)
+    @MainActor func selectedImportance(importance: TodoItem.Importance)
 }
 
 final class ImportanceView: UIView {
