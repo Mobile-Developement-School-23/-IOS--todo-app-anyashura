@@ -14,15 +14,15 @@ public protocol TodoItemProtocol {
 public class FileCache<Item: TodoItemProtocol> {
     // MARK: - Properties
     public private(set) var todoItems = [Item]()
-    
+
     private let rightCSVHeader = ["id", "text", "importance", "deadline", "isDone", "dateCreated", "dateEdited"]
-    
+
     // MARK: - Init
-    
+
     public init() { }
-    
+
     // MARK: - Methods
-    
+
     // add new item, if id is different
     public func add(todoItem: Item) throws {
         if !todoItems.contains(where: { $0.id == todoItem.id }) {
@@ -32,10 +32,10 @@ public class FileCache<Item: TodoItemProtocol> {
             throw FileCacheErrors.sameID(id: todoItem.id)
         }
     }
-    
+
     public func removeAll() {
         todoItems.removeAll()
-    
+
     }
 
     // delete item with id
@@ -110,7 +110,7 @@ public class FileCache<Item: TodoItemProtocol> {
             todoItems.append(todoItem)
         }
     }
-    
+
     // save data to JSON
     public func save(file: String, completion: @escaping (Result<Void, Error>) -> Void) {
 
@@ -143,9 +143,9 @@ public class FileCache<Item: TodoItemProtocol> {
     }
 
     public func loadFile(file: String, completion: @escaping (Result<[Item], Error>) -> Void) {
-        
+
         DispatchQueue.global().async { [weak self] in
-            
+
             guard let self = self else { return }
             guard let fileURL = self.getURL(file: file) else {
                 DispatchQueue.main.async {
@@ -156,17 +156,17 @@ public class FileCache<Item: TodoItemProtocol> {
             do {
                 let jsonData = try Data(contentsOf: fileURL)
                 let jsonObject = try JSONSerialization.jsonObject(with: jsonData)
-                
+
                 guard let jsonDict = jsonObject as? [Any] else {
                     DispatchQueue.main.async {
                         DDLogError(FileCacheErrors.invalidJSON.errorDescription ?? "")
                     }
                     return
                 }
-                
+
                 self.todoItems.removeAll()
                 self.todoItems = jsonDict.compactMap { Item.parse(json: $0) as? Item }
-                
+
                 DispatchQueue.main.async {
                     completion(.success((self.todoItems)))
                 }

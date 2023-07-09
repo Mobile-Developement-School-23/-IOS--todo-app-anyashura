@@ -9,7 +9,6 @@ import Foundation
 import FileCache
 import CocoaLumberjackSwift
 
-
 // MARK: - Protocol
 
 protocol TodoServiceDelegate: AnyObject {
@@ -18,29 +17,28 @@ protocol TodoServiceDelegate: AnyObject {
 
 // MARK: - Class
 
-
 class NetworkModel {
 
     private var isDirty = false
-    
+
     private let file = "first.json"
-    
+
 //    private(set) var items = [TodoItem]()
-    
+
     private let networkService = DefaultNetworkingService()
     private let fileCache = FileCache<TodoItem>()
-    
+
     weak var delegate: TodoServiceDelegate?
-    
+
     // MARK: - Public functions
-    
+
     func getTodoItems() -> [TodoItem] {
         return fileCache.todoItems
     }
-    
+
     func getTodoItem(id: String) -> TodoItem? {
         return fileCache.todoItems.first(where: { $0.id == id }) }
-    
+
     func load(completion: @escaping (Result<Void, Error>) -> Void) {
         fileCache.loadFile(file: file) { [weak self] result in
             guard let self = self else { return }
@@ -101,7 +99,7 @@ class NetworkModel {
             }
         }
     }
-    
+
     func addTodoItem(todoItem: TodoItem, completion: @escaping (Result<Void, Error>) -> Void) {
         try? fileCache.add(todoItem: todoItem)
         fileCache.save(file: file) { [weak self] result in
@@ -158,7 +156,7 @@ class NetworkModel {
             }
         }
     }
-    
+
     func changeTodoItem(todoItem: TodoItem, completion: @escaping (Result<Void, Error>) -> Void) {
         guard fileCache.delete(todoItemID: todoItem.id) != nil else { return }
         try? fileCache.add(todoItem: todoItem)
@@ -216,7 +214,7 @@ class NetworkModel {
             }
         }
     }
-    
+
     func removeTodoItem( id: String, completion: @escaping (Result<Void, Error>) -> Void) {
         guard fileCache.delete(todoItemID: id) != nil else { return }
         fileCache.save(file: file) { [weak self] result in

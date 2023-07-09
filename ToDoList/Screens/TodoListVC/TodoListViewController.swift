@@ -65,7 +65,7 @@ final class TodoListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         model.delegate = self
         startAnimatingActivityIndicator()
         model.load { [weak self] result in
@@ -79,13 +79,12 @@ final class TodoListViewController: UIViewController {
                 self.stopAnimatingActivityIndicator()
             }
         }
-        
+
         configureNavBar()
         view.backgroundColor = .background
         addSubviews()
         addConstraints()
     }
-    
 
     private func configureNavBar() {
         navigationController?.setNavigationBarHidden(false, animated: false)
@@ -121,7 +120,7 @@ final class TodoListViewController: UIViewController {
         activityIndicator.startAnimating()
         activityIndicator.isHidden = false
     }
-    
+
     private func stopAnimatingActivityIndicator() {
         activityIndicator.stopAnimating()
         activityIndicator.isHidden = true
@@ -327,7 +326,7 @@ extension TodoListViewController: TodoServiceDelegate {
     }
 }
     extension TodoListViewController: DetailViewControllerDelegate {
-        
+
         func removeFromView(id: String) {
             self.startAnimatingActivityIndicator()
             self.model.removeTodoItem(id: id) { [weak self] result in
@@ -347,8 +346,16 @@ extension TodoListViewController: TodoServiceDelegate {
             if let updatedId = todoItemView.id {
                 guard let updatedTodoItem = model.getTodoItem(id: updatedId) else { return }
                 startAnimatingActivityIndicator()
-                model.changeTodoItem(todoItem: TodoItem(id: updatedId, text: todoItemView.text ?? "", importance: todoItemView.importance, deadline: todoItemView.deadline, isDone: false, dateCreated: updatedTodoItem.dateCreated, dateEdited: Date.now))
-                               { [weak self] result in
+                model.changeTodoItem(
+                    todoItem: TodoItem(
+                        id: updatedId,
+                        text: todoItemView.text ?? "",
+                        importance: todoItemView.importance,
+                        deadline: todoItemView.deadline,
+                        isDone: false,
+                        dateCreated: updatedTodoItem.dateCreated,
+                        dateEdited: Date.now
+                    )) { [weak self] result in
                     guard let self = self else { return }
                     switch result {
                     case .success:
@@ -366,8 +373,7 @@ extension TodoListViewController: TodoServiceDelegate {
                     importance: todoItemView.importance,
                     deadline: todoItemView.deadline,
                     isDone: false)
-                ) {
-                    [weak self] result in
+                ) { [weak self] result in
                     guard let self = self else { return }
                     switch result {
                     case .success:

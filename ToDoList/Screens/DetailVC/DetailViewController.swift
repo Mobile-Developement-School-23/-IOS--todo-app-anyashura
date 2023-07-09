@@ -31,17 +31,17 @@ class DetailViewController: UIViewController {
         static let heightTextView: CGFloat = 120
         static let insets = UIEdgeInsets(top: 17, left: 16, bottom: 12, right: 16)
     }
-    
+
     // MARK: - Properties
     weak var delegate: DetailViewControllerDelegate?
-    
+
     private var todoItemViewModel = TodoItemViewModel()
     private let file = "first.json"
     let model = NetworkModel()
     private let firstDividedLine = DividedLineView()
     private let secondDividedLine = DividedLineView()
     private let id: String?
-    
+
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -50,7 +50,7 @@ class DetailViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-    
+
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
         button.setTitle(ConstantsText.cancel, for: .normal)
@@ -59,7 +59,7 @@ class DetailViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
     private let taskLabel: UILabel = {
         let label = UILabel()
         label.text = ConstantsText.task
@@ -69,7 +69,7 @@ class DetailViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     private lazy var saveButton: UIButton = {
         let button = UIButton()
         button.setTitle(ConstantsText.save, for: .normal)
@@ -81,7 +81,7 @@ class DetailViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
     private let scrollView: UIScrollView = {
         let view = UIScrollView()
         view.showsHorizontalScrollIndicator = false
@@ -89,7 +89,7 @@ class DetailViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     private let stackViewForAllViews: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -97,7 +97,7 @@ class DetailViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-    
+
     private let containerForStackView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = Constants.cornerRadiusForContainer
@@ -105,14 +105,14 @@ class DetailViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
+
     private let stackViewForImportanceAndDeadline: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
-    
+
     private lazy var textView: TextView = {
         let textView = TextView()
         textView.textAlignment = .left
@@ -126,19 +126,19 @@ class DetailViewController: UIViewController {
         textView.textContainerInset = Constants.insets
         return textView
     }()
-    
+
     private lazy var importanceView: ImportanceView = {
         let view = ImportanceView()
         view.delegate = self
         return view
     }()
-    
+
     private lazy var deadLineView: DeadLineView = {
         let view = DeadLineView()
         view.delegate = self
         return view
     }()
-    
+
     private lazy var deleteButton: UIButton = {
         let deleteButton = UIButton()
         deleteButton.setTitleColor(.redColor, for: .normal)
@@ -153,7 +153,7 @@ class DetailViewController: UIViewController {
         deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         return deleteButton
     }()
-    
+
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
@@ -166,7 +166,7 @@ class DetailViewController: UIViewController {
         datePicker.isHidden = true
         return datePicker
     }()
-    
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -176,12 +176,12 @@ class DetailViewController: UIViewController {
         addConstraints()
         setUpObservers()
     }
-    
+
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        
+
         let orientation = UIDevice.current.orientation
-        
+
         switch orientation {
         case .landscapeLeft, .landscapeRight:
             deleteButton.isHidden = true
@@ -191,18 +191,17 @@ class DetailViewController: UIViewController {
             containerForStackView.isHidden = false
         }
     }
-    
+
     // MARK: - Init
-    
+
     init(id: String?) {
         self.id = id
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 
     func configure(todoItem: TodoItem) {
         todoItemViewModel = TodoItemViewModel(id: todoItem.id)
@@ -216,65 +215,65 @@ class DetailViewController: UIViewController {
 // MARK: - Private methods
 
 extension DetailViewController {
-    
+
     private func addSubviews() {
         view.addSubview(topStackView)
         topStackView.addArrangedSubview(cancelButton)
         topStackView.addArrangedSubview(taskLabel)
         topStackView.addArrangedSubview(saveButton)
-        
+
         view.addSubview(scrollView)
         scrollView.addSubview(stackViewForAllViews)
-        
+
         stackViewForAllViews.addArrangedSubview(textView)
         stackViewForAllViews.addArrangedSubview(containerForStackView)
-        
+
         containerForStackView.addSubview(stackViewForImportanceAndDeadline)
-        
+
         stackViewForImportanceAndDeadline.addArrangedSubview(importanceView)
         stackViewForImportanceAndDeadline.addArrangedSubview(firstDividedLine)
         stackViewForImportanceAndDeadline.addArrangedSubview(deadLineView)
         stackViewForImportanceAndDeadline.addArrangedSubview(secondDividedLine)
         stackViewForImportanceAndDeadline.addArrangedSubview(datePicker)
-        
+
         stackViewForAllViews.addArrangedSubview(deleteButton)
     }
-    
+
     private func addConstraints() {
         NSLayoutConstraint.activate([
             topStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             topStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constants.insetsForTop.left),
             topStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: Constants.insetsForTop.right),
             topStackView.heightAnchor.constraint(equalToConstant: Constants.heightForTop),
-            
+
             scrollView.topAnchor.constraint(equalTo: topStackView.bottomAnchor, constant: 16),
             scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            
+
             stackViewForAllViews.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackViewForAllViews.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stackViewForAllViews.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stackViewForAllViews.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             stackViewForAllViews.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
+
             textView.heightAnchor.constraint(greaterThanOrEqualToConstant: Constants.heightTextView),
             importanceView.heightAnchor.constraint(equalToConstant: Constants.heightImportanceStack),
             deadLineView.heightAnchor.constraint(equalToConstant: Constants.heightDeadlineStack),
-            
+
             stackViewForImportanceAndDeadline.topAnchor.constraint(equalTo: containerForStackView.topAnchor),
             stackViewForImportanceAndDeadline.leadingAnchor.constraint(equalTo: containerForStackView.leadingAnchor),
             stackViewForImportanceAndDeadline.trailingAnchor.constraint(equalTo: containerForStackView.trailingAnchor),
             stackViewForImportanceAndDeadline.bottomAnchor.constraint(equalTo: containerForStackView.bottomAnchor),
-            
+
             deleteButton.heightAnchor.constraint(equalToConstant: Constants.deleteButtonHeight)
         ])
     }
-    
+
     @objc private func datePickerTapped(sender: UIDatePicker) {
         datePickerTapped(for: sender.date)
     }
-    
+
     private func datePickerTapped(for date: Date) {
         todoItemViewModel.deadline = date
         setDateForButton(date)
@@ -283,20 +282,20 @@ extension DetailViewController {
         })
         secondDividedLine.isHidden = true
     }
-    
+
     private func setDateForButton(_ date: Date) {
         deadLineView.setDate(date)
     }
-    
+
     @objc private func cancelButtonTapped() {
         self.dismiss(animated: true, completion: nil)
     }
-    
+
     @objc private func saveButtonTapped() {
         delegate?.updateFromView(todoItemView: todoItemViewModel)
         self.dismiss(animated: true, completion: nil)
     }
-    
+
     @objc private func deleteButtonTapped() {
         guard let id = todoItemViewModel.id else {
             return
@@ -304,7 +303,7 @@ extension DetailViewController {
         delegate?.removeFromView(id: id)
         self.dismiss(animated: true, completion: nil)
     }
-    
+
     private func updateView() {
         textView.text = todoItemViewModel.text
         textView.delegateForText?.textViewDidChange(with: todoItemViewModel.text ?? "")
@@ -315,7 +314,6 @@ extension DetailViewController {
         secondDividedLine.isHidden = true
     }
 }
-
 
 // MARK: - ImportanceViewDelegate
 extension DetailViewController: ImportanceViewDelegate {
@@ -409,17 +407,17 @@ extension DetailViewController {
             object: nil
         )
     }
-    
+
     @objc private func dismissKeyboard() {
         textView.endEditing(true)
     }
-    
+
     private func addTapGestureRecognizerToDismissKeyboard() {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGestureRecognizer.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGestureRecognizer)
     }
-    
+
     @objc private func keyboardWillShow(notification: NSNotification) {
         guard let userInfo = notification.userInfo else { return }
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
@@ -427,14 +425,13 @@ extension DetailViewController {
         scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
         scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
     }
-    
+
     @objc private func keyboardWillHide(notification: NSNotification) {
         scrollView.scrollIndicatorInsets = .zero
         scrollView.contentInset = UIEdgeInsets.zero
     }
-    
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
 }
-

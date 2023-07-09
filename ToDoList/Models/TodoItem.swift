@@ -181,7 +181,7 @@ extension TodoItem {
             dateEdited = nil
         }
     }
-    
+
     func done() -> TodoItem {
         TodoItem(id: self.id,
                  text: self.text,
