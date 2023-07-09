@@ -9,7 +9,7 @@ import UIKit
 
 protocol TodoListTableViewCellDelegate: AnyObject {
 
-    func statusChangedFor(id: String)
+    @MainActor func statusChangedFor(id: String)
 }
 
 class TodoListTableViewCell: UITableViewCell {

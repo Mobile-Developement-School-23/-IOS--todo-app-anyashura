@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 protocol TextViewDelegate: AnyObject {
-    func textViewDidChange(with text: String)
+    @MainActor func textViewDidChange(with text: String)
 }
 
 final class TextView: UITextView {

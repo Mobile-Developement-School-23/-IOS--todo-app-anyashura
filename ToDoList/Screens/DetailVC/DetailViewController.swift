@@ -12,7 +12,7 @@ import FileCache
 protocol DetailViewControllerDelegate: AnyObject {
     func removeFromView(id: String)
     func updateFromView(todoItemView: TodoItemViewModel)
-    
+
 }
 
 class DetailViewController: UIViewController {
@@ -202,20 +202,8 @@ class DetailViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIResponder.keyboardDidShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.removeObserver(
-            self,
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-    
+
+
     func configure(todoItem: TodoItem) {
         todoItemViewModel = TodoItemViewModel(id: todoItem.id)
         todoItemViewModel.text = todoItem.text
@@ -385,8 +373,9 @@ extension DetailViewController: DeadLineViewDelegate {
             deadLineView.switcherIsOff()
         }
     }
-    
-    func dateButtonTapped() {
+
+     func dateButtonTapped() {
+
         if datePicker.isHidden {
             UIView.animate(withDuration: Double(0.3), animations: {
                 self.datePicker.isHidden = false
