@@ -23,9 +23,8 @@ final class TodoListViewController: UIViewController {
         static let nameForCircleImage = "doneGray"
     }
 
-    private var fileCache = FileCache<TodoItem>()
-    let model = NetworkModel()
-    var activityIndicator = UIActivityIndicatorView(style: .medium)
+    private let model = NetworkModel()
+    private var activityIndicator = UIActivityIndicatorView(style: .medium)
     private let file = "first.json"
     private var countOfDoneTasks = 0
     private var todoCellViewModels = [TodoCellViewModel]()
@@ -66,14 +65,8 @@ final class TodoListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        do {
-//            try fileCache.load(file: file)
-//        } catch {
-//            DDLogError("File loading error")
-//        }
-//
+        
         model.delegate = self
-
         startAnimatingActivityIndicator()
         model.load { [weak self] result in
             guard let self = self else { return }
@@ -86,6 +79,7 @@ final class TodoListViewController: UIViewController {
                 self.stopAnimatingActivityIndicator()
             }
         }
+        
         configureNavBar()
         view.backgroundColor = .background
         addSubviews()
@@ -122,58 +116,21 @@ final class TodoListViewController: UIViewController {
             addNewItem.widthAnchor.constraint(equalToConstant: 44)
         ])
     }
+
+    private func startAnimatingActivityIndicator() {
+        activityIndicator.startAnimating()
+        activityIndicator.isHidden = false
+    }
     
     private func stopAnimatingActivityIndicator() {
         activityIndicator.stopAnimating()
         activityIndicator.isHidden = true
     }
 
-    private func startAnimatingActivityIndicator() {
-        activityIndicator.startAnimating()
-        activityIndicator.isHidden = false
-    }
-
     @objc private func addNewItemTapped() {
         let controller = DetailViewController(id: nil)
         controller.delegate = self
         self.present(controller, animated: true, completion: nil)
-    }
-
-    private func removeTodoItem(id: String) {
-        fileCache.delete(todoItemID: id)
-        do {
-            try fileCache.save(file: file)
-        } catch {
-            DDLogError("File saving error")
-        }
-    }
-    
-
-
-    private func ifTaskIsDone(id: String) {
-        if let todoItem = fileCache.delete(todoItemID: id) {
-            do {
-                try fileCache.add(todoItem: TodoItem(
-                    id: todoItem.id,
-                    text: todoItem.text,
-                    importance: todoItem.importance,
-                    deadline: todoItem.deadline,
-                    isDone: todoItem.isDone == false ? true : false,
-                    dateCreated: todoItem.dateCreated,
-                    dateEdited: todoItem.dateEdited))
-            } catch {
-                DDLogError("File deleting error")
-            }
-            do {
-                try fileCache.save(file: file)
-            } catch {
-                DDLogError("File saving error")
-            }
-        }
-    }
-    
-    private func loadDataFromServer() {
-
     }
 
     private func taskCellTappedFor(id: String) {
@@ -187,14 +144,14 @@ final class TodoListViewController: UIViewController {
     }
 
     func updateViewModels() {
-        todoCellViewModels = fileCache.todoItems.map { TodoCellViewModel.init(from: $0) }.filter { completedTasksAreHidden || !$0.isDone }
-        countOfDoneTasks = fileCache.todoItems.filter { $0.isDone }.count
+        let todoItems = model.getTodoItems()
+        todoCellViewModels = todoItems
+            .map { TodoCellViewModel.init(from: $0) }
+            .filter { completedTasksAreHidden || !$0.isDone }
+        countOfDoneTasks = todoItems.filter { $0.isDone }.count
         todoListTableView.reloadData()
     }
-    
 }
-
-
 
 extension TodoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -349,7 +306,6 @@ extension TodoListViewController: TodoListTableViewCellDelegate {
     }
 }
 
-
 extension TodoListViewController: HeaderForTodoListTableViewDelegate {
     func showDoneTodoButton(completedTasksAreHidden: Bool) {
         self.completedTasksAreHidden.toggle()
@@ -371,21 +327,6 @@ extension TodoListViewController: TodoServiceDelegate {
     }
 }
     extension TodoListViewController: DetailViewControllerDelegate {
-        func itemDidChanged() {
-            
-            startAnimatingActivityIndicator()
-            model.load { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                case .success:
-                    self.updateViewModels()
-                    self.stopAnimatingActivityIndicator()
-                case .failure(let error):
-                    DDLogError(error)
-                    self.stopAnimatingActivityIndicator()
-                }
-            }
-        }
         
         func removeFromView(id: String) {
             self.startAnimatingActivityIndicator()
@@ -420,9 +361,13 @@ extension TodoListViewController: TodoServiceDelegate {
                 }
             } else {
                 startAnimatingActivityIndicator()
-                model.addTodoItem(todoItem: TodoItem(text: todoItemView.text ?? "",
-                                                        importance: todoItemView.importance,
-                                                        deadline: todoItemView.deadline, isDone: false)) { [weak self] result in
+                model.addTodoItem(todoItem: TodoItem(
+                    text: todoItemView.text ?? "",
+                    importance: todoItemView.importance,
+                    deadline: todoItemView.deadline,
+                    isDone: false)
+                ) {
+                    [weak self] result in
                     guard let self = self else { return }
                     switch result {
                     case .success:

@@ -51,7 +51,7 @@ struct TodoItemNetwork: Codable {
         deadline = todoItem.deadline == nil ? nil : todoItem.deadline?.timeStamp
         dateCreated = todoItem.dateCreated.timeStamp
         dateEdited = todoItem.dateEdited == nil ? nil : todoItem.dateEdited?.timeStamp
-        lastUpdatedBy = ""
+        lastUpdatedBy = "kk"
     }
     
     init(from decoder: Decoder) throws {

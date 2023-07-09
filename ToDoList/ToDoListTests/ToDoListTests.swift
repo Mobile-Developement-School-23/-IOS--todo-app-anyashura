@@ -50,7 +50,7 @@ final class ToDoListTests: XCTestCase {
         }
         XCTAssertEqual(item.id, "id", "Парсинг id")
         XCTAssertEqual(item.text, "text", "Парсинг текста")
-        XCTAssertEqual(item.importance, TodoItem.Importance.normal, "Парсинг важности")
+        XCTAssertEqual(item.importance, TodoItem.Importance.basic, "Парсинг важности")
         XCTAssertEqual(item.deadline, 1686945309.dateFormat, "Парсинг даты дедлайна")
         XCTAssertEqual(item.dateCreated, 1686945208.dateFormat, "Парсинг даты создания")
         XCTAssertEqual(item.dateEdited, 1686945209.dateFormat, "Парсинг даты редактирования")
@@ -58,14 +58,14 @@ final class ToDoListTests: XCTestCase {
     }
 
     func testParsingCSVWithoutOptionals() throws {
-        let csvString = "5A0C0E34-B9F6-4C0B-963B-8E4838AAD99E,text,high,, true,1686946798,"
+        let csvString = "5A0C0E34-B9F6-4C0B-963B-8E4838AAD99E,text,important,, true,1686946798,"
         guard let item = TodoItem.parseCSV(csvString: csvString) else {
             XCTFail("Не получилось распарсить CSV в todoItem")
             return
         }
         XCTAssertEqual(item.id, "5A0C0E34-B9F6-4C0B-963B-8E4838AAD99E", "Парсинг id")
         XCTAssertEqual(item.text, "text", "Парсинг текста")
-        XCTAssertEqual(item.importance, TodoItem.Importance.high, "Парсинг важности")
+        XCTAssertEqual(item.importance, TodoItem.Importance.important, "Парсинг важности")
         XCTAssertEqual(item.deadline, nil, "Парсинг даты дедлайна")
         XCTAssertEqual(item.dateCreated, 1686946798.dateFormat, "Парсинг даты создания")
         XCTAssertEqual(item.dateEdited, nil, "Парсинг даты редактирования")
@@ -80,7 +80,7 @@ final class ToDoListTests: XCTestCase {
         }
         XCTAssertEqual(item.id, "id", "Парсинг id")
         XCTAssertEqual(item.text, "text", "Парсинг текста")
-        XCTAssertEqual(item.importance, TodoItem.Importance.normal, "Парсинг важности")
+        XCTAssertEqual(item.importance, TodoItem.Importance.basic, "Парсинг важности")
         XCTAssertEqual(item.deadline, 1686947257.dateFormat, "Парсинг даты дедлайна")
         XCTAssertEqual(item.dateCreated, 1686947257.dateFormat, "Парсинг даты создания")
         XCTAssertEqual(item.dateEdited, 1686947257.dateFormat, "Парсинг даты редактирования")
@@ -95,7 +95,7 @@ final class ToDoListTests: XCTestCase {
         let item = TodoItem(
             id: "123",
             text: "text",
-            importance: TodoItem.Importance.normal,
+            importance: TodoItem.Importance.basic,
             deadline: Date(timeIntervalSinceNow: 86400),
             isDone: false,
             dateCreated: Date(),
@@ -115,19 +115,19 @@ final class ToDoListTests: XCTestCase {
         let item = TodoItem(
             id: "123",
             text: "text",
-            importance: TodoItem.Importance.high,
+            importance: TodoItem.Importance.important,
             isDone: true,
             dateCreated: Date()
         )
         let csvString = item.csvString
 
-        XCTAssertEqual(csvString, "123,text,high,, true,\(Int(dateCreated.timeIntervalSince1970)),", "Получение строки из todoItem")
+        XCTAssertEqual(csvString, "123,text,important,, true,\(Int(dateCreated.timeIntervalSince1970)),", "Получение строки из todoItem")
     }
 
     func testConvertStructToJsonWithNormalImportanceAndAllFields() {
         let id = "123"
         let text = "Some text"
-        let importance = TodoItem.Importance.normal
+        let importance = TodoItem.Importance.basic
         let deadline = Date(timeIntervalSinceNow: 86400)
         let isDone = false
         let dateCreated = Date()
@@ -185,7 +185,7 @@ final class ToDoListTests: XCTestCase {
         let item = TodoItem(
             id: "123",
             text: "text, text, text",
-            importance: TodoItem.Importance.normal,
+            importance: TodoItem.Importance.basic,
             isDone: false,
             dateCreated: Date.now
         )

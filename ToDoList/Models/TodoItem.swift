@@ -13,8 +13,8 @@ struct TodoItem {
     // MARK: - Enum
     enum Importance: String {
         case low
-        case normal
-        case high
+        case basic
+        case important
     }
     // MARK: - Properties
     let id: String
@@ -54,7 +54,7 @@ extension TodoItem: TodoItemProtocol {
         dictionary[Constants.text] = self.text
         dictionary[Constants.isDone] = self.isDone
         dictionary[Constants.dateCreated] = self.dateCreated.timeStamp
-        if importance != .normal {
+        if importance != .basic {
             dictionary[Constants.importance] = self.importance.rawValue
         }
         if let deadline = deadline {
@@ -68,7 +68,7 @@ extension TodoItem: TodoItemProtocol {
 
     var csvString: String {
         var importanceForCSV = ""
-        if importance != .normal {
+        if importance != .basic {
             importanceForCSV = self.importance.rawValue
         }
         var deadlineForCSV = ""
@@ -101,7 +101,7 @@ extension TodoItem: TodoItemProtocol {
         if values[6] != "" {
             dateEdited = Int(values[3])?.dateFormat
         }
-        let importance = Importance(rawValue: values[2]) ?? Importance.normal
+        let importance = Importance(rawValue: values[2]) ?? Importance.basic
 
         return TodoItem(
             id: id,
@@ -124,7 +124,7 @@ extension TodoItem: TodoItemProtocol {
               let dateCreated = (dictionary[Constants.dateCreated] as? Int)?.dateFormat else {
             return nil
         }
-        var importance = Importance.normal
+        var importance = Importance.basic
         if let importanceString = dictionary[Constants.importance] as? String,
            let importanceFromDict = Importance(rawValue: importanceString) {
             importance = importanceFromDict
@@ -167,7 +167,7 @@ extension TodoItem {
     init(_ todoItemNetwork: TodoItemNetwork) {
         id = todoItemNetwork.id
         text = todoItemNetwork.text
-        importance = Importance(rawValue: todoItemNetwork.importance) ?? .normal
+        importance = Importance(rawValue: todoItemNetwork.importance) ?? .basic
         if let updatedDeadline = todoItemNetwork.deadline {
             deadline = updatedDeadline.dateFormat
         } else {

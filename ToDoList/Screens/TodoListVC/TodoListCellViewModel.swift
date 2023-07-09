@@ -41,9 +41,16 @@ struct TodoCellViewModel {
     private static func getImportantTextIfNeeded(for text: String, importance: TodoItem.Importance) -> NSMutableAttributedString {
         let fullTextString: NSMutableAttributedString = NSMutableAttributedString(string: "")
         let taskTextMutableString = NSMutableAttributedString(string: text)
-        if importance == .high {
+        if importance == .important {
             let imageImportanceAttachment = NSTextAttachment()
             imageImportanceAttachment.image = UIImage(named: "highImportance")
+            let imageString = NSAttributedString(attachment: imageImportanceAttachment)
+            let spaceString = NSAttributedString(string: " ")
+            fullTextString.append(imageString)
+            fullTextString.append(spaceString)
+        } else if importance == .low {
+            let imageImportanceAttachment = NSTextAttachment()
+            imageImportanceAttachment.image = UIImage(named: "lowImportance")
             let imageString = NSAttributedString(attachment: imageImportanceAttachment)
             let spaceString = NSAttributedString(string: " ")
             fullTextString.append(imageString)

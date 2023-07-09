@@ -87,11 +87,11 @@ final class ImportanceView: UIView {
     }
 
     @objc private func switchImportance(sender: UISegmentedControl) {
-        var importance = TodoItem.Importance.normal
+        var importance = TodoItem.Importance.basic
         switch importanceSegmentedControl.selectedSegmentIndex {
         case 0: importance = .low
-        case 2: importance = .high
-        default: importance = .normal
+        case 2: importance = .important
+        default: importance = .basic
         }
         delegate?.selectedImportance(importance: importance)
     }
@@ -101,8 +101,8 @@ final class ImportanceView: UIView {
     func changeImportance(importance: TodoItem.Importance) {
         switch importance {
         case .low: importanceSegmentedControl.selectedSegmentIndex = 0
-        case .normal: importanceSegmentedControl.selectedSegmentIndex = 1
-        case .high: importanceSegmentedControl.selectedSegmentIndex = 2
+        case .basic: importanceSegmentedControl.selectedSegmentIndex = 1
+        case .important: importanceSegmentedControl.selectedSegmentIndex = 2
         }
     }
 }

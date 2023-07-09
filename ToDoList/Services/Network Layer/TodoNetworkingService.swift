@@ -25,7 +25,7 @@ class NetworkModel {
     
     private let file = "first.json"
     
-    private var items = [TodoItem]()
+//    private(set) var items = [TodoItem]()
     
     private let networkService = DefaultNetworkingService()
     private let fileCache = FileCache<TodoItem>()
@@ -34,7 +34,9 @@ class NetworkModel {
     
     // MARK: - Public functions
     
-    func getTodoItems() -> [TodoItem] { return fileCache.todoItems }
+    func getTodoItems() -> [TodoItem] {
+        return fileCache.todoItems
+    }
     
     func getTodoItem(id: String) -> TodoItem? {
         return fileCache.todoItems.first(where: { $0.id == id }) }

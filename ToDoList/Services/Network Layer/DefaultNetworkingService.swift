@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 final class DefaultNetworkingService: NetworkingService {
     
     enum NetworkError: Error {
@@ -21,38 +19,14 @@ final class DefaultNetworkingService: NetworkingService {
     }
     
     private let queue = DispatchQueue.global()
-    private let bearerToken = ""
+    private let bearerToken = "procyoniform"
     private let path = "https://beta.mrdekk.ru/todobackend/list"
-    
-    private var requestTimeout = 3.0
     
     private var currentRevision: Int
     
     init() {
         self.currentRevision = UserDefaults.standard.integer(forKey: "revision")
 
-    }
-    
-    func createRequest(additionalPath: String? = nil, revision: Int? = nil, requestMethod: RequestMethod) -> URLRequest? {
-        var urlComponents = URLComponents()
-        if let additionalPath = additionalPath {
-            urlComponents.path = "/\(path)/\(additionalPath)"
-        } else {
-            urlComponents.path = "/\(path)"
-        }
-        guard let url = URL(string: path) else {
-            return nil
-        }
-        var urlRequest = URLRequest(url: url)
-        urlRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        urlRequest.setValue("20", forHTTPHeaderField: "X-Generate-Fails")
-        urlRequest.httpMethod = requestMethod.rawValue
-        urlRequest.timeoutInterval = requestTimeout
-        print(urlRequest)
-        if let revision = revision {
-            urlRequest.setValue("\(revision)", forHTTPHeaderField: "X-Last-Known-Revision")
-        }
-        return urlRequest
     }
     
     func getItemsList(completion: @escaping (Result<[TodoItem], Error>) -> Void) {
@@ -62,13 +36,12 @@ final class DefaultNetworkingService: NetworkingService {
             completion(.failure(RequestError.invalidURL))
             return
         }
-        print(urlRequest)
         let task = createTaskForList(completion: completion, urlRequest: urlRequest)
         queue.async {
             task.resume()
         }
     }
-    
+
     func addTodoItem(_ todoItem: TodoItem, completion: @escaping (Result<TodoItem, Error>) -> Void) {
         guard var urlRequest = createRequest(revision: currentRevision, requestMethod: RequestMethod.post) else { completion(.failure(NetworkError.invalidURL))
             return
@@ -80,6 +53,7 @@ final class DefaultNetworkingService: NetworkingService {
             task.resume()
         }
     }
+
     
     func changeTodoItem(_ todoItem: TodoItem, completion: @escaping (Result<TodoItem, Error>) -> Void) {
         guard var urlRequest =  createRequest(additionalPath: todoItem.id, revision: currentRevision,  requestMethod: RequestMethod.put) else {
@@ -91,9 +65,10 @@ final class DefaultNetworkingService: NetworkingService {
             task.resume()
         }
     }
+
     
     func deleteTodoItem(_ id: String, completion: @escaping (Result<TodoItem, Error>) -> Void) {
-        guard let urlRequest = createRequest(additionalPath: id,revision: currentRevision, requestMethod: RequestMethod.delete) else {
+        guard let urlRequest = createRequest(additionalPath: id, revision: currentRevision, requestMethod: RequestMethod.delete) else {
             completion(.failure(NetworkError.invalidURL)); return }
         let task = createTaskForElement(completion: completion, urlRequest: urlRequest)
         queue.async {
@@ -102,26 +77,48 @@ final class DefaultNetworkingService: NetworkingService {
     }
     
     func getItem(id: String, completion: @escaping (Result<TodoItem, Error>) -> Void) {
-        guard let urlRequest = createRequest(additionalPath: id,revision: currentRevision, requestMethod: RequestMethod.get) else {
+        guard let urlRequest = createRequest(additionalPath: id, revision: currentRevision, requestMethod: RequestMethod.get) else {
             completion(.failure(NetworkError.invalidURL)); return }
         let task = createTaskForElement(completion: completion, urlRequest: urlRequest)
         queue.async {
             task.resume()
         }
     }
-    
+
     func putAllTodoItems(_ todoItems: [TodoItem], completion: @escaping (Result<[TodoItem], Error>) -> Void) {
         guard var urlRequest = createRequest(revision: currentRevision, requestMethod: RequestMethod.patch) else {
             completion(.failure(NetworkError.invalidURL)); return }
         let todoItemsNetwork = todoItems.map({TodoItemNetwork($0)})
-//        let networkRequest = ServerRequestList(list: todoItemsNetwork)
-        urlRequest.httpBody = try? JSONEncoder().encode(todoItemsNetwork)
+        let networkRequest = ServerRequestList(list: todoItemsNetwork)
+        urlRequest.httpBody = try? JSONEncoder().encode(networkRequest)
         let task = createTaskForList(completion: completion, urlRequest: urlRequest)
         queue.async {
             task.resume()
         }
     }
     
+    // универсальный метод создания реквестов
+    private func createRequest(additionalPath: String? = nil, revision: Int? = nil, requestMethod: RequestMethod) -> URLRequest? {
+        var urlComponents = URLComponents()
+        if let additionalPath = additionalPath {
+            urlComponents.path = "\(path)/\(additionalPath)"
+        } else {
+            urlComponents.path = "\(path)"
+        }
+        guard let url = URL(string: urlComponents.path) else {
+            return nil
+        }
+        var urlRequest = URLRequest(url: url)
+        urlRequest.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        urlRequest.httpMethod = requestMethod.rawValue
+        
+        if let revision = revision {
+            urlRequest.setValue("\(revision)", forHTTPHeaderField: "X-Last-Known-Revision")
+        }
+        return urlRequest
+    }
+    
+    // универсальный метод для создания таски для списка элементов
     private func createTaskForList(completion: @escaping (Result<[TodoItem], Error>) -> Void,
                         urlRequest: URLRequest) -> URLSessionDataTask {
         let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
@@ -142,7 +139,7 @@ final class DefaultNetworkingService: NetworkingService {
         return task
     }
     
-    
+    // универсальный метод для создания таски для конкретного элемента
     private func createTaskForElement(completion: @escaping (Result<TodoItem, Error>) -> Void,
                            urlRequest: URLRequest) -> URLSessionDataTask {
         let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
@@ -166,6 +163,7 @@ final class DefaultNetworkingService: NetworkingService {
         currentRevision = revision
         UserDefaults.standard.set(currentRevision, forKey: "revision")
     }
+    
     private func checkErrors(statusCode: Int) -> RequestError {
         switch statusCode {
         case 400:

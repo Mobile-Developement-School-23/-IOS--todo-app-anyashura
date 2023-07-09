@@ -10,7 +10,6 @@ import CocoaLumberjackSwift
 import FileCache
 
 protocol DetailViewControllerDelegate: AnyObject {
-    func itemDidChanged()
     func removeFromView(id: String)
     func updateFromView(todoItemView: TodoItemViewModel)
     
@@ -34,24 +33,14 @@ class DetailViewController: UIViewController {
     }
     
     // MARK: - Properties
-    private var todoItemViewModel = TodoItemViewModel()
-    private let fileCache = FileCache<TodoItem>()
+    weak var delegate: DetailViewControllerDelegate?
     
+    private var todoItemViewModel = TodoItemViewModel()
     private let file = "first.json"
+    let model = NetworkModel()
     private let firstDividedLine = DividedLineView()
     private let secondDividedLine = DividedLineView()
     private let id: String?
-    
-    private let networkingService = DefaultNetworkingService()
-    var todoList = [TodoItem]()
-    var completedItemsCountUpdated: ((Int) -> Void)?
-    //        var todoListUpdated: (([TodoItemTableViewCell.DisplayData]) -> Void)?
-    var errorOccurred: ((String) -> Void)?
-    var updateActivityIndicatorState: ((Bool) -> Void)?
-    var todoItemLoaded: ((TodoItem) -> Void)?
-    var changesSaved: (() -> Void)?
-
-    private var dataChanged: (() -> Void)?
     
     private lazy var topStackView: UIStackView = {
         let stackView = UIStackView()
@@ -178,27 +167,14 @@ class DetailViewController: UIViewController {
         return datePicker
     }()
     
-    weak var delegate: DetailViewControllerDelegate?
-    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .background
         secondDividedLine.isHidden = true
-//        do {
-//            try fileCache.loadFile(file: <#T##String#>, completion: <#T##(Result<[TodoItem], Error>) -> Void#>)
-//        } catch {
-//            DDLogError("File loading error")
-//        }
         addSubviews()
         addConstraints()
         setUpObservers()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        guard let id = id else { return }
-        loadFromCache(id: id)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -242,6 +218,9 @@ class DetailViewController: UIViewController {
     
     func configure(todoItem: TodoItem) {
         todoItemViewModel = TodoItemViewModel(id: todoItem.id)
+        todoItemViewModel.text = todoItem.text
+        todoItemViewModel.importance = todoItem.importance
+        todoItemViewModel.deadline = todoItem.deadline
         updateView()
     }
 }
@@ -249,15 +228,6 @@ class DetailViewController: UIViewController {
 // MARK: - Private methods
 
 extension DetailViewController {
-    private func loadFromCache(id: String) {
-        if let todo = fileCache.todoItems.first(where: { $0.id == id }) {
-            todoItemViewModel.importance = todo.importance
-            todoItemViewModel.deadline = todo.deadline
-            todoItemViewModel.id = todo.id
-            todoItemViewModel.text = todo.text
-            updateView()
-        }
-    }
     
     private func addSubviews() {
         view.addSubview(topStackView)
@@ -336,36 +306,6 @@ extension DetailViewController {
     
     @objc private func saveButtonTapped() {
         delegate?.updateFromView(todoItemView: todoItemViewModel)
-//        guard
-//            let text = todoItemViewModel.text
-//        else {
-//            return
-//        }
-//        let importance = todoItemViewModel.importance
-//
-//        let todoItem: TodoItem
-//        if let id = self.id {
-//            todoItem = TodoItem(id: id, text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
-//            do {
-//                try fileCache.update(todoItem: todoItem)
-//            } catch {
-//                DDLogError("File updating error")
-//            }
-//        } else {
-//            todoItem = TodoItem(text: text, importance: importance, deadline: todoItemViewModel.deadline, isDone: false)
-//            do {
-//                try fileCache.add(todoItem: todoItem)
-//            } catch {
-//                DDLogError("Item adding error")
-//            }
-//        }
-//        do {
-//            try fileCache.save(file: file)
-//        } catch {
-//            DDLogError("File saving error")
-//        }
-//
-//        delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -374,14 +314,6 @@ extension DetailViewController {
             return
         }
         delegate?.removeFromView(id: id)
-//        fileCache.delete(todoItemID: id)
-//        do {
-//            try fileCache.save(file: file)
-//        } catch {
-//            DDLogError("File saving error")
-//        }
-//
-//        delegate?.itemDidChanged()
         self.dismiss(animated: true, completion: nil)
     }
     

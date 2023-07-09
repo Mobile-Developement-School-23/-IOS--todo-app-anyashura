@@ -145,7 +145,7 @@ class TodoListTableViewCell: UITableViewCell {
         todoCellViewModel = model
         todoItemLabel.attributedText = model.text
         deadlineLabel.attributedText = model.deadline
-        if model.importance == .high {
+        if model.importance == .important {
             isDoneCircle.setRedColorForCircle(isHighImportance: true)
         } else {
             isDoneCircle.setRedColorForCircle(isHighImportance: false)
