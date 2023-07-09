@@ -29,6 +29,7 @@ final class TodoListViewController: UIViewController {
     private var countOfDoneTasks = 0
     private var todoCellViewModels = [TodoCellViewModel]()
     private var completedTasksAreHidden: Bool = false
+    private var lastUpdatedByDevice = UIDevice.current.identifierForVendor?.uuidString
     private var selectedCellFrame: CGRect?
 
     private let topStackView: UIStackView = {
@@ -65,7 +66,7 @@ final class TodoListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        UserDefaults.standard.set(UIDevice.current.identifierForVendor?.uuidString, forKey: "lastUpdatedBy")
         model.delegate = self
         startAnimatingActivityIndicator()
         model.load { [weak self] result in

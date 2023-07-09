@@ -30,7 +30,7 @@ class NetworkModel {
 
     weak var delegate: TodoServiceDelegate?
 
-    // MARK: - Public functions
+    // MARK: - Methods
 
     func getTodoItems() -> [TodoItem] {
         return fileCache.todoItems

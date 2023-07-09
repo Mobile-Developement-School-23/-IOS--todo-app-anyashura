@@ -24,9 +24,9 @@ final class DefaultNetworkingService: NetworkingService {
 
     private var currentRevision: Int
 
+
     init() {
         self.currentRevision = UserDefaults.standard.integer(forKey: "revision")
-
     }
 
     func getItemsList(completion: @escaping (Result<[TodoItem], Error>) -> Void) {
