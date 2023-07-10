@@ -11,7 +11,7 @@ import XCTest
 final class ToDoListTests: XCTestCase {
 
     // MARK: - Tests for TodoItem
-    // Сделала тесты только для TodoItem (в ТЗ написано только для этого)
+
     func testParsingJSONWithoutOptionals() throws {
         let json: [String: Any] =
         [

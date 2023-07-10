@@ -42,7 +42,6 @@ final class HeaderForTodoListTableView: UITableViewHeaderFooterView {
         button.backgroundColor = .clear
         button.titleLabel?.font = .toDoHeadline
         button.setTitle(ConstantsText.show, for: .normal)
-//        button.setTitle(ConstantsText.hide, for: .selected)
         button.setTitleColor(.systemGray, for: .highlighted)
         button.addTarget(self, action: #selector(showHideButtonTapped(sender:)), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false

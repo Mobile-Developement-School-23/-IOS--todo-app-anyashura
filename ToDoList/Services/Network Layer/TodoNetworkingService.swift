@@ -23,7 +23,6 @@ class NetworkModel {
 
     private let file = "first.json"
 
-//    private(set) var items = [TodoItem]()
 
     private let networkService = DefaultNetworkingService()
     private let fileCache = FileCache<TodoItem>()
@@ -33,7 +32,7 @@ class NetworkModel {
     // MARK: - Methods
 
     func getTodoItems() -> [TodoItem] {
-        return fileCache.todoItems
+        return fileCache.todoItems.reversed()
     }
 
     func getTodoItem(id: String) -> TodoItem? {
