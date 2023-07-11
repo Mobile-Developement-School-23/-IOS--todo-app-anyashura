@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 protocol NetworkingService {
     func getItemsList(completion: @escaping (Result<[TodoItem], Error>) -> Void)
     func addTodoItem(_ todoItem: TodoItem, completion: @escaping (Result<TodoItem, Error>) -> Void)

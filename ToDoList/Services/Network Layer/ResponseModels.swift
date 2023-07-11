@@ -42,7 +42,7 @@ struct TodoItemNetwork: Codable {
     let dateCreated: Int
     let dateEdited: Int?
     let lastUpdatedBy: String
-    
+
     init(_ todoItem: TodoItem) {
         id = todoItem.id
         text = todoItem.text
@@ -51,9 +51,9 @@ struct TodoItemNetwork: Codable {
         deadline = todoItem.deadline == nil ? nil : todoItem.deadline?.timeStamp
         dateCreated = todoItem.dateCreated.timeStamp
         dateEdited = todoItem.dateEdited == nil ? nil : todoItem.dateEdited?.timeStamp
-        lastUpdatedBy = ""
+        lastUpdatedBy = "\(String(describing: UserDefaults.standard.string(forKey: "lastUpdatedBy") ?? "device"))"
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -69,7 +69,7 @@ struct TodoItemNetwork: Codable {
         self.dateEdited = try container.decode(Int?.self, forKey: .dateEdited)
         self.lastUpdatedBy = try container.decode(String.self, forKey: .lastUpdatedBy)
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case text
@@ -80,7 +80,7 @@ struct TodoItemNetwork: Codable {
         case dateEdited = "changed_at"
         case lastUpdatedBy = "last_updated_by"
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
