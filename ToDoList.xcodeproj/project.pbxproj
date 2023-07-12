@@ -33,6 +33,7 @@
 		B58189B92A4301850047289F /* Extension+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58189B82A4301850047289F /* Extension+Color.swift */; };
 		B58189BB2A4305EB0047289F /* Extension+Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58189BA2A4305EB0047289F /* Extension+Font.swift */; };
 		B58189BF2A439BFC0047289F /* ConstantsText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58189BE2A439BFC0047289F /* ConstantsText.swift */; };
+		B5A9374D2A5F00040055724C /* FileCacheSQLite.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A9374C2A5F00040055724C /* FileCacheSQLite.swift */; };
 		B5AC0F552A35FB5A00B1FE5A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC0F542A35FB5A00B1FE5A /* AppDelegate.swift */; };
 		B5AC0F572A35FB5A00B1FE5A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC0F562A35FB5A00B1FE5A /* SceneDelegate.swift */; };
 		B5AC0F592A35FB5A00B1FE5A /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC0F582A35FB5A00B1FE5A /* DetailViewController.swift */; };
@@ -99,6 +100,7 @@
 		B58189B82A4301850047289F /* Extension+Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+Color.swift"; sourceTree = "<group>"; };
 		B58189BA2A4305EB0047289F /* Extension+Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+Font.swift"; sourceTree = "<group>"; };
 		B58189BE2A439BFC0047289F /* ConstantsText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsText.swift; sourceTree = "<group>"; };
+		B5A9374C2A5F00040055724C /* FileCacheSQLite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheSQLite.swift; sourceTree = "<group>"; };
 		B5AC0F512A35FB5A00B1FE5A /* ToDoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5AC0F542A35FB5A00B1FE5A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B5AC0F562A35FB5A00B1FE5A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -194,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				B53DDBBA2A5588A100D9F615 /* FileCacheProtocol.swift */,
+				B5A9374C2A5F00040055724C /* FileCacheSQLite.swift */,
 				B53DDBAB2A543BA300D9F615 /* Network Layer */,
 			);
 			path = Services;
@@ -369,6 +372,7 @@
 				B5AC0F4E2A35FB5A00B1FE5A /* Frameworks */,
 				B5AC0F4F2A35FB5A00B1FE5A /* Resources */,
 				B57B7A932A4F46BF00777D3B /* ShellScript */,
+				B98FE052D4D4ED85C2DAFD6D /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -411,6 +415,7 @@
 				B5AC0F6D2A35FB5B00B1FE5A /* Sources */,
 				B5AC0F6E2A35FB5B00B1FE5A /* Frameworks */,
 				B5AC0F6F2A35FB5B00B1FE5A /* Resources */,
+				C319D79437E1C92877B54D04 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -577,8 +582,41 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "
-";
+			shellScript = "\n";
+		};
+		B98FE052D4D4ED85C2DAFD6D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ToDoList/Pods-ToDoList-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ToDoList/Pods-ToDoList-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ToDoList/Pods-ToDoList-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C319D79437E1C92877B54D04 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ToDoList-ToDoListUITests/Pods-ToDoList-ToDoListUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ToDoList-ToDoListUITests/Pods-ToDoList-ToDoListUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ToDoList-ToDoListUITests/Pods-ToDoList-ToDoListUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -597,6 +635,7 @@
 				B53DDBBB2A5588A100D9F615 /* FileCacheProtocol.swift in Sources */,
 				B5AC0F552A35FB5A00B1FE5A /* AppDelegate.swift in Sources */,
 				B58189B92A4301850047289F /* Extension+Color.swift in Sources */,
+				B5A9374D2A5F00040055724C /* FileCacheSQLite.swift in Sources */,
 				B5AC0F872A35FBCF00B1FE5A /* TodoItem.swift in Sources */,
 				B50CED492A56D22700F12621 /* ResponseModels.swift in Sources */,
 				B57986132A4D6BD000FD742F /* AddNewItemView.swift in Sources */,
