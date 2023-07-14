@@ -25,129 +25,97 @@ class NetworkModel {
 
 
     private let networkService = DefaultNetworkingService()
-    private let fileCache = FileCache<TodoItem>()
+    private let fileCacheDB = FileCacheSQLite()
 
     weak var delegate: TodoServiceDelegate?
 
     // MARK: - Methods
 
     func getTodoItems() -> [TodoItem] {
-        return fileCache.todoItems.reversed()
+        return fileCacheDB.todoItems.reversed()
     }
 
     func getTodoItem(id: String) -> TodoItem? {
-        return fileCache.todoItems.first(where: { $0.id == id }) }
-
+        return fileCacheDB.todoItems.first(where: { $0.id == id }) }
+    
     func load(completion: @escaping (Result<Void, Error>) -> Void) {
-        fileCache.loadFile(file: file) { [weak self] result in
+        fileCacheDB.load { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let todoItems):
                 DispatchQueue.main.async { self.delegate?.update() }
-                self.networkService.putAllTodoItems(todoItems) { result in
-                    switch result {
-                    case .success(let todoItems):
-                        self.fileCache.removeAll()
-                        for todoItem in todoItems {
-                            try? self.fileCache.add(todoItem: todoItem)
-                        }
-                        self.fileCache.save(file: self.file) { result in
-                            switch result {
-                            case .success:
-                                DispatchQueue.main.async {
-                                    completion(.success(()))
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    completion(.failure(error))
-                                }
-                            }
-                        }
-                    case .failure:
-                        self.isDirty = true
-                        DispatchQueue.main.async {
-                            completion(.success(()))
-                        }
-                    }
-                }
+//                self.networkService.putAllTodoItems(todoItems) { result in
+//                    switch result {
+//                    case .success(let todoItems):
+//                        self.fileCacheDB.save(items: todoItems) { result in
+//                            switch result {
+//                            case .success:
+//                                DispatchQueue.main.async {
+//                                    completion(.success(()))
+//                                }
+//                            case .failure(let error):
+//                                DispatchQueue.main.async {
+//                                    completion(.failure(error))
+//                                }
+//                            }
+//                        }
+//                    case .failure:
+//                        self.isDirty = true
+//                        DispatchQueue.main.async {
+//                            completion(.success(()))
+//                        }
+//                    }
+//                }
             case .failure:
-                self.networkService.getItemsList { result in
-                    switch result {
-                    case .success(let todoItems):
-                        for todoItem in todoItems {
-                            try? self.fileCache.add(todoItem: todoItem)
-                        }
-                        self.fileCache.save(file: self.file) { result in
-                            switch result {
-                            case .success:
-                                DispatchQueue.main.async {
-                                    completion(.success(()))
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    completion(.failure(error))
-                                }
-                            }
-                        }
-                    case .failure(let error):
-                        DispatchQueue.main.async {
-                            completion(.failure(error))
-                        }
-                    }
-                }
+                break
             }
         }
     }
 
     func addTodoItem(todoItem: TodoItem, completion: @escaping (Result<Void, Error>) -> Void) {
-        try? fileCache.add(todoItem: todoItem)
-        fileCache.save(file: file) { [weak self] result in
+        fileCacheDB.insert(item: todoItem) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
                 DispatchQueue.main.async { self.delegate?.update() }
-                if self.isDirty {
-                    self.networkService.putAllTodoItems(self.fileCache.todoItems) { result in
-                        switch result {
-                        case .success(let todoItems):
-                            self.fileCache.removeAll()
-                            for todoItem in todoItems {
-                                try? self.fileCache.add(todoItem: todoItem)
-                            }
-                            self.fileCache.save(file: self.file) { result in
-                                switch result {
-                                case .success:
-                                    DispatchQueue.main.async {
-                                        completion(.success(()))
-                                    }
-                                case .failure(let error):
-                                    DispatchQueue.main.async {
-                                        completion(.failure(error))
-                                    }
-                                }
-                            }
-                        case .failure:
-                            self.isDirty = true
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        }
-                    }
-                } else {
-                    self.networkService.addTodoItem(todoItem) { [weak self] result in
-                        switch result {
-                        case .success:
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        case .failure:
-                            self?.isDirty = true
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        }
-                    }
-                }
+//                if self.isDirty {
+//                    self.networkService.putAllTodoItems(self.fileCacheDB.todoItems) { result in
+//                        switch result {
+//                        case .success(let todoItems):
+//                            self.fileCacheDB.save(items: todoItems) { result in
+//                                switch result {
+//                                case .success:
+//                                    DispatchQueue.main.async {
+//                                        completion(.success(()))
+//                                    }
+//                                case .failure(let error):
+//                                    DispatchQueue.main.async {
+//                                        completion(.failure(error))
+//                                    }
+//                                }
+//                            }
+//                        case .failure:
+//                            self.isDirty = true
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    self.networkService.addTodoItem(todoItem) { [weak self] result in
+//                        switch result {
+//                        case .success:
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        case .failure:
+//                            self?.isDirty = true
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        }
+//                    }
+//                }
             case .failure(let error):
                 DispatchQueue.main.async {
                     completion(.failure(error))
@@ -157,55 +125,49 @@ class NetworkModel {
     }
 
     func changeTodoItem(todoItem: TodoItem, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard fileCache.delete(todoItemID: todoItem.id) != nil else { return }
-        try? fileCache.add(todoItem: todoItem)
-        fileCache.save(file: file) { [weak self] result in
+        fileCacheDB.replace(item: todoItem) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
                 DispatchQueue.main.async { self.delegate?.update() }
-                if self.isDirty {
-                    self.networkService.putAllTodoItems(self.fileCache.todoItems) { result in
-                        switch result {
-                        case .success(let todoItems):
-                            self.fileCache.removeAll()
-                            for todoItem in todoItems {
-                                try? self.fileCache.add(todoItem: todoItem)
-                            }
-                            self.fileCache.save(file: self.file) { result in
-                                switch result {
-                                case .success:
-                                    DispatchQueue.main.async {
-                                        completion(.success(()))
-                                    }
-                                case .failure(let error):
-                                    DispatchQueue.main.async {
-                                        completion(.failure(error))
-                                    }
-                                }
-                            }
-                        case .failure:
-                            self.isDirty = true
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        }
-                    }
-                } else {
-                    self.networkService.changeTodoItem(todoItem) { [weak self] result in
-                        switch result {
-                        case .success:
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        case .failure:
-                            self?.isDirty = true
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        }
-                    }
-                }
+//                if self.isDirty {
+//                    self.networkService.putAllTodoItems(self.fileCacheDB.todoItems) { result in
+//                        switch result {
+//                        case .success(let todoItems):
+//                            self.fileCacheDB.save(items: todoItems) { result in
+//                                switch result {
+//                                case .success:
+//                                    DispatchQueue.main.async {
+//                                        completion(.success(()))
+//                                    }
+//                                case .failure(let error):
+//                                    DispatchQueue.main.async {
+//                                        completion(.failure(error))
+//                                    }
+//                                }
+//                            }
+//                        case .failure:
+//                            self.isDirty = true
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    self.networkService.changeTodoItem(todoItem) { [weak self] result in
+//                        switch result {
+//                        case .success:
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        case .failure:
+//                            self?.isDirty = true
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        }
+//                    }
+//                }
             case .failure(let error):
                 DispatchQueue.main.async {
                     completion(.failure(error))
@@ -213,56 +175,50 @@ class NetworkModel {
             }
         }
     }
-
     func removeTodoItem( id: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard fileCache.delete(todoItemID: id) != nil else { return }
-        fileCache.save(file: file) { [weak self] result in
+        fileCacheDB.delete(id) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
                 DispatchQueue.main.async { self.delegate?.update() }
-                if self.isDirty {
-                    self.networkService.putAllTodoItems(self.fileCache.todoItems) { result in
-                        switch result {
-                        case .success(let todoItems):
-                            self.fileCache.removeAll()
-                            for todoItem in todoItems {
-                                try? self.fileCache.add(todoItem: todoItem)
-                            }
-                            self.fileCache.save(file: self.file) { result in
-                                switch result {
-                                case .success:
-                                    DispatchQueue.main.async {
-                                        completion(.success(()))
-                                    }
-                                case .failure(let error):
-                                    DispatchQueue.main.async {
-                                        completion(.failure(error))
-                                    }
-                                }
-                            }
-                        case .failure:
-                            self.isDirty = true
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        }
-                    }
-                } else {
-                    self.networkService.deleteTodoItem(id) { [weak self] result in
-                        switch result {
-                        case .success:
-                            DispatchQueue.main.async {
-                                completion(.success(()))
-                            }
-                        case .failure(let error):
-                            self?.isDirty = true
-                            DispatchQueue.main.async {
-                                completion(.failure(error))
-                            }
-                        }
-                    }
-                }
+//                if self.isDirty {
+//                    self.networkService.putAllTodoItems(self.fileCacheDB.todoItems) { result in
+//                        switch result {
+//                        case .success(let todoItems):
+//                            self.fileCacheDB.save(items: todoItems) { result in
+//                                switch result {
+//                                case .success:
+//                                    DispatchQueue.main.async {
+//                                        completion(.success(()))
+//                                    }
+//                                case .failure(let error):
+//                                    DispatchQueue.main.async {
+//                                        completion(.failure(error))
+//                                    }
+//                                }
+//                            }
+//                        case .failure:
+//                            self.isDirty = true
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    self.networkService.deleteTodoItem(id) { [weak self] result in
+//                        switch result {
+//                        case .success:
+//                            DispatchQueue.main.async {
+//                                completion(.success(()))
+//                            }
+//                        case .failure(let error):
+//                            self?.isDirty = true
+//                            DispatchQueue.main.async {
+//                                completion(.failure(error))
+//                            }
+//                        }
+//                    }
+//                }
             case .failure(let error):
                 DispatchQueue.main.async {
                     completion(.failure(error))
