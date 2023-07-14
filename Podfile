@@ -6,6 +6,7 @@ target 'ToDoList' do
   use_frameworks!
 
  pod 'SwiftLint'
+ pod 'SQLite.swift', '~> 0.14.0'
 
   target 'ToDoListTests' do
     inherit! :search_paths

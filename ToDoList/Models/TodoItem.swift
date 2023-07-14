@@ -7,6 +7,8 @@
 
 import Foundation
 import FileCache
+import SQLite
+import CoreData
 
 struct TodoItem {
 
@@ -64,6 +66,96 @@ extension TodoItem: TodoItemProtocol {
             dictionary[Constants.dateEdited] = dateEdited.timeStamp
         }
         return dictionary
+    }
+
+    var sqlInsertStatement: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        var deadlineStr = ""
+        if let deadlineToStr = self.deadline {
+            deadlineStr = "'" + formatter.string(from: deadlineToStr) + "'"
+        } else {
+            deadlineStr = "NULL"
+        }
+
+        var dateEditedStr = ""
+        if let dateEditedToStr = self.dateEdited {
+            dateEditedStr = "'" + formatter.string(from: dateEditedToStr) + "'"
+        } else {
+            dateEditedStr = "NULL"
+        }
+
+        let isDoneStr = self.isDone ? "1" : "0"
+
+        let sqlStatement = "REPLACE INTO \"TodoItems\" (" +
+        "\"\(Constants.id)\", " +
+        "\"\(Constants.text)\", " +
+        "\"\(Constants.importance)\", " +
+        "\"\(Constants.deadline)\", " +
+        "\"\(Constants.isDone)\", " +
+        "\"\(Constants.dateCreated)\", " +
+        "\"\(Constants.dateEdited)\")" +
+        " VALUES (" +
+        "'\(self.id)', " +
+        "'\(self.text)', " +
+        "'\(self.importance.rawValue)', " +
+        "\(deadlineStr), " +
+        "\(isDoneStr), " +
+        "'\(formatter.string(from: self.dateCreated))', " +
+        "\(dateEditedStr))"
+        return sqlStatement
+    }
+
+    static func parseSQL(row: Row) -> TodoItem? {
+        return self.init(
+            id: row[Constants.idSQL],
+            text: row[Constants.textSQL],
+            importance: Importance(rawValue: row[Constants.importanceSQL]) ?? .basic,
+            deadline: row[Constants.deadlineSQL],
+            isDone: row[Constants.isDoneSQL],
+            dateCreated: row[Constants.dateCreatedSQL],
+            dateEdited: row[Constants.dateEditedSQL]
+        )
+    }
+    static func parseCoreData(entity: TodoItemEntity) -> TodoItem? {
+        guard let id = entity.id,
+              let text = entity.text,
+              let importance = TodoItem.Importance(rawValue: entity.importance ?? "basic")
+        else { return nil }
+//        let deadline = entity.deadline
+//        let dateEdited = entity.dateEdited
+//        let dateCreated = entity.dateCreated
+
+        return TodoItem(
+            id: id,
+            text: text,
+            importance: importance,
+            deadline: entity.deadline,
+            isDone: entity.isDone,
+            dateCreated: entity.dateCreated ?? Date(),
+            dateEdited: entity.dateEdited
+        )
+    }
+
+    var coreDataEntity: TodoItemEntity? {
+        let context = CoreDataContainer.shared.persistentContainer.viewContext
+
+        guard let entity = NSEntityDescription.entity(forEntityName: "TodoItemEntity", in: context)
+        else { return nil }
+
+        let toDoItem = TodoItemEntity(entity: entity, insertInto: nil)
+        toDoItem.id = id
+        toDoItem.text = text
+        toDoItem.importance = importance.rawValue
+        toDoItem.dateCreated = dateCreated
+        toDoItem.deadline = deadline
+        toDoItem.dateEdited = dateEdited
+        toDoItem.isDone = isDone
+
+        return toDoItem
     }
 
     var csvString: String {
@@ -143,8 +235,18 @@ extension TodoItem: TodoItemProtocol {
         )
     }
 
+    func done() -> TodoItem {
+        TodoItem(id: self.id,
+                 text: self.text,
+                 importance: self.importance,
+                 deadline: self.deadline,
+                 isDone: self.isDone == false ? true : false,
+                 dateCreated: self.dateCreated,
+                 dateEdited: Date.now)
+    }
+
     // function for corner case, when in field "text" there is a symbol the same as separator
-     static func replaceSymbols(in string: String, what replace: Character, with replacement: Character) -> String {
+    static func replaceSymbols(in string: String, what replace: Character, with replacement: Character) -> String {
         return String(string.map { $0 == replace ? replacement : $0 })
     }
 }
@@ -160,36 +262,12 @@ extension TodoItem {
         static let isDone = "isDone"
         static let dateCreated = "dateCreated"
         static let dateEdited = "dateEdited"
+        static let idSQL = Expression<String>("id")
+        static let textSQL = Expression<String>("text")
+        static let importanceSQL = Expression<String>("importance")
+        static let deadlineSQL = Expression<Date?>("deadline")
+        static let isDoneSQL = Expression<Bool>("isDone")
+        static let dateCreatedSQL = Expression<Date>("dateCreated")
+        static let dateEditedSQL = Expression<Date?>("dateEdited")
     }
-}
-
-extension TodoItem {
-    init(_ todoItemNetwork: TodoItemNetwork) {
-        id = todoItemNetwork.id
-        text = todoItemNetwork.text
-        importance = Importance(rawValue: todoItemNetwork.importance) ?? .basic
-        if let updatedDeadline = todoItemNetwork.deadline {
-            deadline = updatedDeadline.dateFormat
-        } else {
-            deadline = nil
-        }
-        isDone = todoItemNetwork.isDone
-        dateCreated = todoItemNetwork.dateCreated.dateFormat ?? .now
-        if let updatedDateEdited = todoItemNetwork.dateEdited {
-            dateEdited = updatedDateEdited.dateFormat
-        } else {
-            dateEdited = nil
-        }
-    }
-
-    func done() -> TodoItem {
-        TodoItem(id: self.id,
-                 text: self.text,
-                 importance: self.importance,
-                 deadline: self.deadline,
-                 isDone: self.isDone == false ? true : false,
-                 dateCreated: self.dateCreated,
-                 dateEdited: self.dateEdited)
-    }
-
 }

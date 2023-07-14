@@ -37,7 +37,6 @@ class DetailViewController: UIViewController {
 
     private var todoItemViewModel = TodoItemViewModel()
     private let file = "first.json"
-    let model = NetworkModel()
     private let firstDividedLine = DividedLineView()
     private let secondDividedLine = DividedLineView()
     private let id: String?
@@ -212,7 +211,7 @@ class DetailViewController: UIViewController {
     }
 }
 
-// MARK: - Private methods
+// MARK: - Methods
 
 extension DetailViewController {
 
@@ -372,7 +371,7 @@ extension DetailViewController: DeadLineViewDelegate {
         }
     }
 
-     func dateButtonTapped() {
+    func dateButtonTapped() {
 
         if datePicker.isHidden {
             UIView.animate(withDuration: Double(0.3), animations: {

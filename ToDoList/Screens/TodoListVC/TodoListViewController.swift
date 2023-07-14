@@ -10,6 +10,7 @@ import CocoaLumberjackSwift
 import FileCache
 
 final class TodoListViewController: UIViewController {
+    // MARK: - Enum
 
     enum Constants {
         static let insetsForTable = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: -16)
@@ -23,11 +24,18 @@ final class TodoListViewController: UIViewController {
         static let nameForCircleImage = "doneGray"
     }
 
-    private let model = NetworkModel()
-    private var activityIndicator = UIActivityIndicatorView(style: .medium)
-    private let file = "first.json"
-    private var countOfDoneTasks = 0
+    // MARK: - Properties
     private var todoCellViewModels = [TodoCellViewModel]()
+    private var searchedtodoCellViewModels = [TodoCellViewModel]()
+    private let searchController = UISearchController(searchResultsController: nil)
+    private var filterIsActive: Bool {
+        searchController.isActive && !isSearchBarEmpty
+    }
+    private var isSearchBarEmpty: Bool {
+        return searchController.searchBar.text?.isEmpty ?? true
+    }
+    private let model = FileCaheModel()
+    private var countOfDoneTasks = 0
     private var completedTasksAreHidden: Bool = false
     private var lastUpdatedByDevice = UIDevice.current.identifierForVendor?.uuidString
     private var selectedCellFrame: CGRect?
@@ -64,27 +72,57 @@ final class TodoListViewController: UIViewController {
         return addItem
     }()
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         UserDefaults.standard.set(UIDevice.current.identifierForVendor?.uuidString, forKey: "lastUpdatedBy")
         model.delegate = self
-        startAnimatingActivityIndicator()
         model.load { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
                 self.updateViewModels()
-                self.stopAnimatingActivityIndicator()
             case .failure(let error):
                 DDLogError(error)
-                self.stopAnimatingActivityIndicator()
             }
         }
 
         configureNavBar()
+        configureSearchBar()
         view.backgroundColor = .background
         addSubviews()
         addConstraints()
+    }
+
+    // MARK: - Methods
+
+    func updateViewModels() {
+        let todoItems = model.getTodoItems()
+        if filterIsActive {
+            searchedtodoCellViewModels = todoItems
+                .map { TodoCellViewModel.init(from: $0) }
+                .filter { completedTasksAreHidden || !$0.isDone }
+            countOfDoneTasks = todoItems.filter { $0.isDone }.count
+        }
+        todoCellViewModels = todoItems
+            .map { TodoCellViewModel.init(from: $0) }
+            .filter { completedTasksAreHidden || !$0.isDone }
+        countOfDoneTasks = todoItems.filter { $0.isDone }.count
+        todoListTableView.reloadData()
+        if filterIsActive {
+            updateSearchResults(for: searchController)
+        }
+    }
+
+    private func configureSearchBar() {
+        navigationItem.searchController = searchController
+        searchController.searchResultsUpdater = self
+        navigationItem.hidesSearchBarWhenScrolling = false
+        searchController.searchBar.placeholder = " Поиск..."
+        searchController.showsSearchResultsController = false
+        searchController.obscuresBackgroundDuringPresentation = false
+        definesPresentationContext = true
     }
 
     private func configureNavBar() {
@@ -92,10 +130,6 @@ final class TodoListViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         title = ConstantsText.myTasks
         navigationController?.additionalSafeAreaInsets.left = Constants.navBarLeadingInset
-        let activityIndicatorButtonItem = UIBarButtonItem(customView: activityIndicator)
-        navigationItem.setRightBarButton(activityIndicatorButtonItem, animated: false)
-        activityIndicator.startAnimating()
-        activityIndicator.isHidden = true
     }
 
     private func addSubviews() {
@@ -117,16 +151,6 @@ final class TodoListViewController: UIViewController {
         ])
     }
 
-    private func startAnimatingActivityIndicator() {
-        activityIndicator.startAnimating()
-        activityIndicator.isHidden = false
-    }
-
-    private func stopAnimatingActivityIndicator() {
-        activityIndicator.stopAnimating()
-        activityIndicator.isHidden = true
-    }
-
     @objc private func addNewItemTapped() {
         let controller = DetailViewController(id: nil)
         controller.delegate = self
@@ -142,17 +166,9 @@ final class TodoListViewController: UIViewController {
         controller.configure(todoItem: todoItem)
         self.present(controller, animated: true, completion: nil)
     }
-
-    func updateViewModels() {
-        let todoItems = model.getTodoItems()
-        todoCellViewModels = todoItems
-            .map { TodoCellViewModel.init(from: $0) }
-            .filter { completedTasksAreHidden || !$0.isDone }
-        countOfDoneTasks = todoItems.filter { $0.isDone }.count
-        todoListTableView.reloadData()
-    }
 }
 
+// MARK: - UITableViewDelegate
 extension TodoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let lastIndex = tableView.numberOfRows(inSection: 0) - 1
@@ -166,7 +182,10 @@ extension TodoListViewController: UITableViewDelegate {
         guard let cell = tableView.cellForRow(at: indexPath) else { return }
         selectedCellFrame = tableView.convert(cell.frame, to: tableView.superview)
 
-        let tappedTaskModelId = todoCellViewModels[indexPath.row].id
+        var tappedTaskModelId = todoCellViewModels[indexPath.row].id
+        if filterIsActive {
+            tappedTaskModelId = searchedtodoCellViewModels[indexPath.row].id
+        }
         taskCellTappedFor(id: tappedTaskModelId)
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -177,7 +196,10 @@ extension TodoListViewController: UITableViewDelegate {
         guard indexPath.row != lastIndex else { return nil }
 
         let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: { () -> UIViewController? in
-            let tappedTaskModelId = self.todoCellViewModels[indexPath.row].id
+            var tappedTaskModelId = self.todoCellViewModels[indexPath.row].id
+            if self.filterIsActive {
+                tappedTaskModelId = self.searchedtodoCellViewModels[indexPath.row].id
+            }
             let controller = DetailViewController(id: tappedTaskModelId)
             guard let todoItem = self.model.getTodoItems().first(where: { $0.id == tappedTaskModelId }) else { return nil }
             controller.configure(todoItem: todoItem)
@@ -197,22 +219,21 @@ extension TodoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 
         if !(tableView.cellForRow(at: indexPath) is TodoListTableViewCell) { return nil}
-
         let swipeCheckDone = UIContextualAction(style: .normal, title: nil) { [weak self] _, _, _ in
-            guard let changedTaskModelId = self?.todoCellViewModels[indexPath.row].id else { return }
             guard let self = self else { return }
+            var changedTaskModelId = self.todoCellViewModels[indexPath.row].id
+            if self.filterIsActive {
+                changedTaskModelId = self.searchedtodoCellViewModels[indexPath.row].id
+            }
             guard let updatedTodoItem = self.model.getTodoItem(id: changedTaskModelId) else { return }
             let doneTodoItem = updatedTodoItem.done()
-            self.startAnimatingActivityIndicator()
             self.model.changeTodoItem(todoItem: doneTodoItem) { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success:
                     self.updateViewModels()
-                    self.stopAnimatingActivityIndicator()
                 case .failure(let error):
                     DDLogError(error)
-                    self.stopAnimatingActivityIndicator()
                 }
             }
         }
@@ -226,18 +247,19 @@ extension TodoListViewController: UITableViewDelegate {
         if !(tableView.cellForRow(at: indexPath) is TodoListTableViewCell) { return nil}
 
         let swipeDelete = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, _ in
-            guard let deletedTaskModelId = self?.todoCellViewModels[indexPath.row].id else { return }
             guard let self = self else { return }
-            self.startAnimatingActivityIndicator()
+            var deletedTaskModelId = self.todoCellViewModels[indexPath.row].id
+            if self.filterIsActive {
+                deletedTaskModelId = self.searchedtodoCellViewModels[indexPath.row].id
+            }
+
             self.model.removeTodoItem(id: deletedTaskModelId) { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success:
                     self.updateViewModels()
-                    self.stopAnimatingActivityIndicator()
                 case .failure(let error):
                     DDLogError(error)
-                    self.stopAnimatingActivityIndicator()
                 }
             }
         }
@@ -247,8 +269,13 @@ extension TodoListViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - UITableViewDataSource
+
 extension TodoListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if filterIsActive {
+            return searchedtodoCellViewModels.count + 1
+        }
         return todoCellViewModels.count + 1
     }
 
@@ -279,6 +306,12 @@ extension TodoListViewController: UITableViewDataSource {
                 withIdentifier: Constants.cellIDTodo,
                 for: indexPath
             ) as? TodoListTableViewCell
+            if filterIsActive {
+                let filteredTodoCellViewModel = searchedtodoCellViewModels[indexPath.row]
+                cell?.configureCellWith(model: filteredTodoCellViewModel, setTopMaskedCorners: indexPath.row == 0 ? true : false)
+                cell?.delegate = self
+                return cell ?? UITableViewCell()
+            }
             let todoCellViewModel = todoCellViewModels[indexPath.row]
             cell?.configureCellWith(model: todoCellViewModel, setTopMaskedCorners: indexPath.row == 0 ? true : false)
             cell?.delegate = self
@@ -287,24 +320,25 @@ extension TodoListViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - TodoListTableViewCellDelegate
+
 extension TodoListViewController: TodoListTableViewCellDelegate {
     func statusChangedFor(id: String) {
         guard let updatedTodoItem = model.getTodoItem(id: id) else { return }
         let doneTodoItem = updatedTodoItem.done()
-        startAnimatingActivityIndicator()
         model.changeTodoItem(todoItem: doneTodoItem) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
                 self.updateViewModels()
-                self.stopAnimatingActivityIndicator()
             case .failure(let error):
                 DDLogError(error)
-                self.stopAnimatingActivityIndicator()
             }
         }
     }
 }
+
+// MARK: - HeaderForTodoListTableViewDelegate
 
 extension TodoListViewController: HeaderForTodoListTableViewDelegate {
     func showDoneTodoButton(completedTasksAreHidden: Bool) {
@@ -312,6 +346,8 @@ extension TodoListViewController: HeaderForTodoListTableViewDelegate {
         updateViewModels()
     }
 }
+
+// MARK: - UIViewControllerTransitioningDelegate
 
 extension TodoListViewController: UIViewControllerTransitioningDelegate {
 
@@ -321,70 +357,83 @@ extension TodoListViewController: UIViewControllerTransitioningDelegate {
     }
 }
 
+// MARK: - TodoServiceDelegate
+
 extension TodoListViewController: TodoServiceDelegate {
     func update() {
         updateViewModels()
     }
 }
-    extension TodoListViewController: DetailViewControllerDelegate {
 
-        func removeFromView(id: String) {
-            self.startAnimatingActivityIndicator()
-            self.model.removeTodoItem(id: id) { [weak self] result in
+// MARK: - DetailViewControllerDelegate
+
+extension TodoListViewController: DetailViewControllerDelegate {
+
+    func removeFromView(id: String) {
+        self.model.removeTodoItem(id: id) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success:
+                self.updateViewModels()
+            case .failure(let error):
+                DDLogError(error)
+            }
+        }
+    }
+
+    func updateFromView(todoItemView: TodoItemViewModel) {
+        if let updatedId = todoItemView.id {
+            guard let updatedTodoItem = model.getTodoItem(id: updatedId) else { return }
+            model.changeTodoItem(
+                todoItem: TodoItem(
+                    id: updatedId,
+                    text: todoItemView.text ?? "",
+                    importance: todoItemView.importance,
+                    deadline: todoItemView.deadline,
+                    isDone: false,
+                    dateCreated: updatedTodoItem.dateCreated,
+                    dateEdited: Date.now
+                )) { [weak self] result in
+                    guard let self = self else { return }
+                    switch result {
+                    case .success:
+                        self.updateViewModels()
+
+                    case .failure(let error):
+                        DDLogError(error)
+                    }
+                }
+        } else {
+            model.addTodoItem(todoItem: TodoItem(
+                text: todoItemView.text ?? "",
+                importance: todoItemView.importance,
+                deadline: todoItemView.deadline,
+                isDone: false)
+            ) { [weak self] result in
                 guard let self = self else { return }
                 switch result {
                 case .success:
                     self.updateViewModels()
-                    self.stopAnimatingActivityIndicator()
                 case .failure(let error):
                     DDLogError(error)
-                    self.stopAnimatingActivityIndicator()
-                }
-            }
-        }
-
-        func updateFromView(todoItemView: TodoItemViewModel) {
-            if let updatedId = todoItemView.id {
-                guard let updatedTodoItem = model.getTodoItem(id: updatedId) else { return }
-                startAnimatingActivityIndicator()
-                model.changeTodoItem(
-                    todoItem: TodoItem(
-                        id: updatedId,
-                        text: todoItemView.text ?? "",
-                        importance: todoItemView.importance,
-                        deadline: todoItemView.deadline,
-                        isDone: false,
-                        dateCreated: updatedTodoItem.dateCreated,
-                        dateEdited: Date.now
-                    )) { [weak self] result in
-                    guard let self = self else { return }
-                    switch result {
-                    case .success:
-                        self.updateViewModels()
-                        self.stopAnimatingActivityIndicator()
-                    case .failure(let error):
-                        DDLogError(error)
-                        self.stopAnimatingActivityIndicator()
-                    }
-                }
-            } else {
-                startAnimatingActivityIndicator()
-                model.addTodoItem(todoItem: TodoItem(
-                    text: todoItemView.text ?? "",
-                    importance: todoItemView.importance,
-                    deadline: todoItemView.deadline,
-                    isDone: false)
-                ) { [weak self] result in
-                    guard let self = self else { return }
-                    switch result {
-                    case .success:
-                        self.updateViewModels()
-                        self.stopAnimatingActivityIndicator()
-                    case .failure(let error):
-                        DDLogError(error)
-                        self.stopAnimatingActivityIndicator()
-                    }
                 }
             }
         }
     }
+}
+
+// MARK: - UISearchResultsUpdating, UISearchBarDelegate
+
+extension TodoListViewController: UISearchResultsUpdating, UISearchBarDelegate {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let text = searchController.searchBar.text else { return }
+        filterSearchText(text)
+    }
+
+    func filterSearchText(_ searchText: String) {
+        searchedtodoCellViewModels = todoCellViewModels.filter {
+            return $0.text.mutableString.contains(searchText)
+        }
+        todoListTableView.reloadData()
+    }
+}
