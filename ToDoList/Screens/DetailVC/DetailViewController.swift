@@ -37,7 +37,6 @@ class DetailViewController: UIViewController {
 
     private var todoItemViewModel = TodoItemViewModel()
     private let file = "first.json"
-    let model = NetworkModel()
     private let firstDividedLine = DividedLineView()
     private let secondDividedLine = DividedLineView()
     private let id: String?

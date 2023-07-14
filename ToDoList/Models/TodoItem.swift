@@ -238,6 +238,16 @@ extension TodoItem: TodoItemProtocol {
         )
     }
     
+    func done() -> TodoItem {
+        TodoItem(id: self.id,
+                 text: self.text,
+                 importance: self.importance,
+                 deadline: self.deadline,
+                 isDone: self.isDone == false ? true : false,
+                 dateCreated: self.dateCreated,
+                 dateEdited: Date.now)
+    }
+    
     // function for corner case, when in field "text" there is a symbol the same as separator
     static func replaceSymbols(in string: String, what replace: Character, with replacement: Character) -> String {
         return String(string.map { $0 == replace ? replacement : $0 })
@@ -263,35 +273,4 @@ extension TodoItem {
         static let dateCreatedSQL = Expression<Date>("dateCreated")
         static let dateEditedSQL = Expression<Date?>("dateEdited")
     }
-}
-
-extension TodoItem {
-    init(_ todoItemNetwork: TodoItemNetwork) {
-        id = todoItemNetwork.id
-        text = todoItemNetwork.text
-        importance = Importance(rawValue: todoItemNetwork.importance) ?? .basic
-        if let updatedDeadline = todoItemNetwork.deadline {
-            deadline = updatedDeadline.dateFormat
-        } else {
-            deadline = nil
-        }
-        isDone = todoItemNetwork.isDone
-        dateCreated = todoItemNetwork.dateCreated.dateFormat ?? .now
-        if let updatedDateEdited = todoItemNetwork.dateEdited {
-            dateEdited = updatedDateEdited.dateFormat
-        } else {
-            dateEdited = nil
-        }
-    }
-    
-    func done() -> TodoItem {
-        TodoItem(id: self.id,
-                 text: self.text,
-                 importance: self.importance,
-                 deadline: self.deadline,
-                 isDone: self.isDone == false ? true : false,
-                 dateCreated: self.dateCreated,
-                 dateEdited: self.dateEdited)
-    }
-    
 }

@@ -7,12 +7,13 @@
 
 import Foundation
 import CoreData
+import CocoaLumberjackSwift
 
 final class FileCacheCoreData: FileCacheDBService {
     private(set) public var todoItems: [TodoItem] = []
-
+    
     private let context: NSManagedObjectContext
-
+    
     init() {
         context = CoreDataContainer.shared.persistentContainer.viewContext
     }
@@ -21,7 +22,7 @@ final class FileCacheCoreData: FileCacheDBService {
         DispatchQueue.global().async  { [weak self] in
             guard let self = self else { return }
             do {
-               try  self.loadItemsFromCoreData()
+                try  self.loadItemsFromCoreData()
                 completion(.success(self.todoItems))
             } catch let error {
                 completion(.failure(error))
@@ -94,16 +95,16 @@ final class FileCacheCoreData: FileCacheDBService {
             }
             return
         } catch {
-            print(error)
+            DDLogError(error.localizedDescription)
             return
         }
     }
-
-        private func saveItemsIntoCoreData(items: [TodoItem]) throws {
+    
+    private func saveItemsIntoCoreData(items: [TodoItem]) throws {
         do {
             let fetchRequest: NSFetchRequest<NSFetchRequestResult> = TodoItemEntity.fetchRequest()
             let deleteAllRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-
+            
             try context.execute(deleteAllRequest)
             for item in items {
                 if let itemEntity = item.coreDataEntity {
@@ -113,51 +114,47 @@ final class FileCacheCoreData: FileCacheDBService {
             try context.save()
             return
         } catch {
-            print(error)
+            DDLogError(error.localizedDescription)
             return
         }
     }
-
+    
     private func insertItemIntoCoreData(item: TodoItem) throws {
         guard let entity = item.coreDataEntity
         else { return }
         context.insert(entity)
-
+        
         do {
             try context.save()
             todoItems.append(item)
             print(todoItems)
         } catch {
-            print(error)
+            DDLogError(error.localizedDescription)
         }
     }
-
+    
     private func updateItemIntoCoreData(item: TodoItem) throws {
-        guard let itemIndex = todoItems.firstIndex(where: { $0.id == item.id })
-        else { return }
-
         let fetchRequest: NSFetchRequest<TodoItemEntity> = TodoItemEntity.fetchRequest()
         do {
-            guard let updatedItem = try context.fetch(fetchRequest).first(where: { $0.id == item.id })
+            guard let todoItemDB = try context.fetch(fetchRequest).first(where: { $0.id == item.id })
             else { return }
-
-            guard let newEntity = item.coreDataEntity
+            
+            guard let itemEntity = item.coreDataEntity
             else { return  }
-
-            updatedItem.text = newEntity.text
-            updatedItem.dateCreated = newEntity.dateCreated
-            updatedItem.importance = newEntity.importance
-            updatedItem.deadline = newEntity.deadline
-            updatedItem.dateEdited = newEntity.dateEdited
-            updatedItem.isDone = newEntity.isDone
+            
+            todoItemDB.text = itemEntity.text
+            todoItemDB.dateCreated = itemEntity.dateCreated
+            todoItemDB.importance = itemEntity.importance
+            todoItemDB.deadline = itemEntity.deadline
+            todoItemDB.dateEdited = itemEntity.dateEdited
+            todoItemDB.isDone = itemEntity.isDone
             
             try context.save()
-            todoItems[itemIndex] = item
-//            todoItems.remove(at: itemIndex)
-//            todoItems.append(item)
+            todoItems.removeAll(where: { $0.id == item.id })
+            todoItems.append(item)
             return
         } catch {
-            print(error)
+            DDLogError(error.localizedDescription)
             return
         }
     }
@@ -172,7 +169,7 @@ final class FileCacheCoreData: FileCacheDBService {
             }
             return
         } catch {
-            print("cannot fetch from database")
+            DDLogError(error.localizedDescription)
             return
         }
     }

@@ -114,7 +114,7 @@ final class FileCacheSQLite: FileCacheDBService {
         DispatchQueue.global().async  { [weak self] in
             guard let self = self else { return }
             do {
-                try self.deleteIntoDatabase(id)
+                try self.deleteFromDatabase(id)
                 print("Item was deleted")
                 completion(.success(()))
             } catch let error {
@@ -141,7 +141,6 @@ final class FileCacheSQLite: FileCacheDBService {
         })
     }
     
-
     private func loadAllItemsFromDataBase() throws {
         guard let base = database else { return }
         todoItems.removeAll()
@@ -160,9 +159,9 @@ final class FileCacheSQLite: FileCacheDBService {
         let itemsToDelete = todoItemsTable.filter(!itemsIds.contains(id))
         let itemsToInsert = items.filter({!dbItemsIds.contains($0.id)})
         let itemsToReplace = items.filter({dbItemsIds.contains($0.id)})
-
+        
         try base.run(itemsToDelete.delete())
-
+        
         for item in itemsToInsert {
             try insertIntoDatabase(item: item)
         }
@@ -175,44 +174,41 @@ final class FileCacheSQLite: FileCacheDBService {
     
     //можно использовать любой из этих методов
     
-//    private func insertIntoDatabase(item: TodoItem) throws {
-//        guard let base = database else { return }
-//        try base.run(item.sqlInsertStatement)
-//        todoItems.append(item)
-//    }
+    //    private func insertIntoDatabase(item: TodoItem) throws {
+    //        guard let base = database else { return }
+    //        try base.run(item.sqlInsertStatement)
+    //        todoItems.append(item)
+    //    }
     
-        private func insertIntoDatabase(item: TodoItem) throws {
-            guard let base = database else { return }
-            let insert = todoItemsTable.insert(id <- item.id,
-                                               text <- item.text,
-                                               importance <- item.importance.rawValue,
-                                               deadline <- item.deadline,
-                                               isDone <- item.isDone,
-                                               dateCreated <- item.dateCreated,
-                                               dateEdited <- item.dateEdited)
-            try base.run(insert)
-            todoItems.append(item)
-        }
-        
-        private func replaceIntoDatabase(item: TodoItem) throws {
-            guard let base = database else { return }
-            guard let itemIndex = todoItems.firstIndex(where: { $0.id == item.id })
-            else { return }
-            let updatedTodoItem = todoItemsTable.filter(id == item.id)
-            let insert = todoItemsTable.insert(or: .replace,
-                                               id <- item.id,
-                                               text <- item.text,
-                                               importance <- item.importance.rawValue,
-                                               deadline <- item.deadline,
-                                               isDone <- item.isDone,
-                                               dateCreated <- item.dateCreated,
-                                               dateEdited <- item.dateEdited)
-            try base.run(insert)
-            todoItems.removeAll(where: { $0.id == item.id })
-            todoItems.append(item)
-        }
+    private func insertIntoDatabase(item: TodoItem) throws {
+        guard let base = database else { return }
+        let insert = todoItemsTable.insert(id <- item.id,
+                                           text <- item.text,
+                                           importance <- item.importance.rawValue,
+                                           deadline <- item.deadline,
+                                           isDone <- item.isDone,
+                                           dateCreated <- item.dateCreated,
+                                           dateEdited <- item.dateEdited)
+        try base.run(insert)
+        todoItems.append(item)
+    }
     
-    private func deleteIntoDatabase(_ id: String) throws {
+    private func replaceIntoDatabase(item: TodoItem) throws {
+        guard let base = database else { return }
+        let insert = todoItemsTable.insert(or: .replace,
+                                           id <- item.id,
+                                           text <- item.text,
+                                           importance <- item.importance.rawValue,
+                                           deadline <- item.deadline,
+                                           isDone <- item.isDone,
+                                           dateCreated <- item.dateCreated,
+                                           dateEdited <- item.dateEdited)
+        try base.run(insert)
+        todoItems.removeAll(where: { $0.id == item.id })
+        todoItems.append(item)
+    }
+    
+    private func deleteFromDatabase(_ id: String) throws {
         guard let base = database else { return }
         let todoItem = todoItemsTable.filter(self.id == id)
         try base.run(todoItem.delete())
