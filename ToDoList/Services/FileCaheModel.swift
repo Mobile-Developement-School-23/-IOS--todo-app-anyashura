@@ -19,7 +19,9 @@ protocol TodoServiceDelegate: AnyObject {
 
 class FileCaheModel {
 
-    private let fileCacheDB = FileCacheCoreData()
+    // нужно раскомментировать строчку и закомментировать ниже, чтобы поменять хранилище
+    private let fileCacheDB = FileCacheSQLite()
+    //    private let fileCacheDB = FileCacheCoreData()
 
     weak var delegate: TodoServiceDelegate?
 
@@ -32,7 +34,7 @@ class FileCaheModel {
 
     func getTodoItem(id: String) -> TodoItem? {
         return fileCacheDB.todoItems.first(where: { $0.id == id }) }
-    
+
     func load(completion: @escaping (Result<Void, Error>) -> Void) {
         fileCacheDB.load { [weak self] result in
             guard let self = self else { return }
@@ -72,6 +74,7 @@ class FileCaheModel {
             }
         }
     }
+    
     func removeTodoItem( id: String, completion: @escaping (Result<Void, Error>) -> Void) {
         fileCacheDB.delete(id) { [weak self] result in
             guard let self = self else { return }

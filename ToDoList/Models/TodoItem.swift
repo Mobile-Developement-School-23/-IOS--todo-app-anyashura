@@ -10,9 +10,8 @@ import FileCache
 import SQLite
 import CoreData
 
-
 struct TodoItem {
-    
+
     // MARK: - Enum
     enum Importance: String {
         case low
@@ -27,7 +26,7 @@ struct TodoItem {
     let isDone: Bool
     let dateCreated: Date
     let dateEdited: Date?
-    
+
     // MARK: - Init
     init(
         id: String = UUID().uuidString,
@@ -52,7 +51,7 @@ struct TodoItem {
 extension TodoItem: TodoItemProtocol {
     var json: Any {
         var dictionary: [String: Any] = [:]
-        
+
         dictionary[Constants.id] = self.id
         dictionary[Constants.text] = self.text
         dictionary[Constants.isDone] = self.isDone
@@ -68,29 +67,29 @@ extension TodoItem: TodoItemProtocol {
         }
         return dictionary
     }
-    
+
     var sqlInsertStatement: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        
+
         var deadlineStr = ""
         if let deadlineToStr = self.deadline {
             deadlineStr = "'" + formatter.string(from: deadlineToStr) + "'"
         } else {
             deadlineStr = "NULL"
         }
-        
+
         var dateEditedStr = ""
         if let dateEditedToStr = self.dateEdited {
             dateEditedStr = "'" + formatter.string(from: dateEditedToStr) + "'"
         } else {
             dateEditedStr = "NULL"
         }
-        
+
         let isDoneStr = self.isDone ? "1" : "0"
-        
+
         let sqlStatement = "REPLACE INTO \"TodoItems\" (" +
         "\"\(Constants.id)\", " +
         "\"\(Constants.text)\", " +
@@ -107,10 +106,9 @@ extension TodoItem: TodoItemProtocol {
         "\(isDoneStr), " +
         "'\(formatter.string(from: self.dateCreated))', " +
         "\(dateEditedStr))"
-        print(sqlStatement)
         return sqlStatement
     }
-    
+
     static func parseSQL(row: Row) -> TodoItem? {
         return self.init(
             id: row[Constants.idSQL],
@@ -130,7 +128,7 @@ extension TodoItem: TodoItemProtocol {
 //        let deadline = entity.deadline
 //        let dateEdited = entity.dateEdited
 //        let dateCreated = entity.dateCreated
-        
+
         return TodoItem(
             id: id,
             text: text,
@@ -141,13 +139,13 @@ extension TodoItem: TodoItemProtocol {
             dateEdited: entity.dateEdited
         )
     }
-    
+
     var coreDataEntity: TodoItemEntity? {
         let context = CoreDataContainer.shared.persistentContainer.viewContext
-        
+
         guard let entity = NSEntityDescription.entity(forEntityName: "TodoItemEntity", in: context)
         else { return nil }
-        
+
         let toDoItem = TodoItemEntity(entity: entity, insertInto: nil)
         toDoItem.id = id
         toDoItem.text = text
@@ -156,11 +154,10 @@ extension TodoItem: TodoItemProtocol {
         toDoItem.deadline = deadline
         toDoItem.dateEdited = dateEdited
         toDoItem.isDone = isDone
-        
+
         return toDoItem
     }
-    
-    
+
     var csvString: String {
         var importanceForCSV = ""
         if importance != .basic {
@@ -175,10 +172,10 @@ extension TodoItem: TodoItemProtocol {
             dateEditedForCSV = String(dateEdited.timeStamp)
         }
         let text = TodoItem.replaceSymbols(in: self.text, what: ",", with: "~")
-        
+
         return "\(self.id),\(text),\(importanceForCSV),\(deadlineForCSV), \(String(self.isDone)),\(String(self.dateCreated.timeStamp)),\(dateEditedForCSV)"
     }
-    
+
     static func parseCSV(csvString: String) -> TodoItem? {
         let values = csvString.components(separatedBy: ",")
         let id = values[0]
@@ -197,7 +194,7 @@ extension TodoItem: TodoItemProtocol {
             dateEdited = Int(values[3])?.dateFormat
         }
         let importance = Importance(rawValue: values[2]) ?? Importance.basic
-        
+
         return TodoItem(
             id: id,
             text: text,
@@ -208,7 +205,7 @@ extension TodoItem: TodoItemProtocol {
             dateEdited: dateEdited
         )
     }
-    
+
     static func parse(json: Any) -> TodoItem? {
         guard let dictionary = json as? [String: Any] else {
             return nil
@@ -226,7 +223,7 @@ extension TodoItem: TodoItemProtocol {
         }
         let deadline = (dictionary[Constants.deadline] as? Int)?.dateFormat
         let dateEdited = (dictionary[Constants.dateEdited] as? Int)?.dateFormat
-        
+
         return TodoItem(
             id: id,
             text: text,
@@ -237,7 +234,7 @@ extension TodoItem: TodoItemProtocol {
             dateEdited: dateEdited
         )
     }
-    
+
     func done() -> TodoItem {
         TodoItem(id: self.id,
                  text: self.text,
@@ -247,7 +244,7 @@ extension TodoItem: TodoItemProtocol {
                  dateCreated: self.dateCreated,
                  dateEdited: Date.now)
     }
-    
+
     // function for corner case, when in field "text" there is a symbol the same as separator
     static func replaceSymbols(in string: String, what replace: Character, with replacement: Character) -> String {
         return String(string.map { $0 == replace ? replacement : $0 })
@@ -256,7 +253,7 @@ extension TodoItem: TodoItemProtocol {
 
 // MARK: - Constants
 extension TodoItem {
-    
+
     enum Constants {
         static let id = "id"
         static let text = "text"

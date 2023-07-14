@@ -18,13 +18,13 @@ final class FileCacheSQLite: FileCacheDBService {
         static let dateCreatedKey = "dateCreated"
         static let dateEditedKey = "dateEdited"
         static let tableName = "TodoItems"
-        
+
     }
     private (set) var todoItems: [TodoItem] = []
     private var database: Connection?
-    
+
     private let todoItemsTable = Table(Constants.tableName)
-    
+
     private let id = Expression<String>(Constants.idKey)
     private let text = Expression<String>(Constants.textKey)
     private let importance = Expression<String>(Constants.importanceKey)
@@ -32,23 +32,19 @@ final class FileCacheSQLite: FileCacheDBService {
     private let isDone = Expression<Bool>(Constants.isDoneKey)
     private let dateCreated = Expression<Date>(Constants.dateCreatedKey)
     private let dateEdited = Expression<Date?>(Constants.dateEditedKey)
-    
+
     private let file = "file2.sqlite3"
-    
-    private var url: URL? {
-        guard let documentDirectory = FileManager.default.urls(for: .documentDirectory,
-                                                               in: .userDomainMask).first else {
-            return nil
-        }
-        let path = documentDirectory.appendingPathComponent(file)
-        return path
+
+    private var pathForDB: String? {
+        let pathForDB = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first
+        return pathForDB
     }
-    
+
     // MARK: - Init
-    
+
     init() {
-        guard let url = url else { return }
-        let database = try? Connection(url.path)
+        guard let pathForDB = pathForDB else { return }
+        let database = try? Connection("\(pathForDB)/\(file)")
         self.database = database
         do {
             try createTable()
@@ -56,11 +52,11 @@ final class FileCacheSQLite: FileCacheDBService {
             print("\(error)")
         }
     }
-    
+
     // MARK: - Methods
-    
+
     func load(completion: @escaping (Swift.Result<[TodoItem], Error>) -> Void) {
-        DispatchQueue.global().async  { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             do {
                 try self.loadAllItemsFromDataBase()
@@ -70,12 +66,11 @@ final class FileCacheSQLite: FileCacheDBService {
             }
         }
     }
-    
+
     func save(items: [TodoItem], completion: @escaping (Swift.Result<[TodoItem], Error>) -> Void) {
-        DispatchQueue.global().async  { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             do {
                 try self?.saveIntoDatabase(items: items) { items in
-                    print("Saved")
                     completion(.success(items))
                 }
             } catch let error {
@@ -83,52 +78,49 @@ final class FileCacheSQLite: FileCacheDBService {
             }
         }
     }
-    
+
     func insert(item: TodoItem, completion: @escaping (Swift.Result<TodoItem, Error>) -> Void) {
-        DispatchQueue.global().async  { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             do {
                 try self.insertIntoDatabase(item: item)
-                print("Created item")
                 completion(.success(item))
             } catch let error {
                 completion(.failure(error))
             }
         }
     }
-    
+
     func replace(item: TodoItem, completion: @escaping (Swift.Result<TodoItem, Error>) -> Void) {
-        DispatchQueue.global().async  { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             do {
                 try self.replaceIntoDatabase(item: item)
-                print("Updated item")
                 completion(.success(item))
             } catch let error {
                 completion(.failure(error))
             }
         }
     }
-    
+
     func delete(_ id: String, completion: @escaping (Swift.Result<Void, Error>) -> Void) {
-        DispatchQueue.global().async  { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             do {
                 try self.deleteFromDatabase(id)
-                print("Item was deleted")
                 completion(.success(()))
             } catch let error {
                 completion(.failure(error))
             }
         }
     }
-    
+
     private func createTable() throws {
-        guard let url = url else { return }
-        if !FileManager.default.fileExists(atPath: url.path) {
-            FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil)
+        guard let pathForDB = pathForDB else { return }
+        if !FileManager.default.fileExists(atPath: "\(pathForDB)/\(file)") {
+            FileManager.default.createFile(atPath: "\(pathForDB)/\(file)", contents: nil, attributes: nil)
         }
-        let connection = try Connection(url.path)
+        let connection = try Connection("\(pathForDB)/\(file)")
         try connection.run(todoItemsTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: true)
             table.column(text)
@@ -137,10 +129,9 @@ final class FileCacheSQLite: FileCacheDBService {
             table.column(isDone)
             table.column(dateCreated)
             table.column(dateEdited)
-            print(table)
         })
     }
-    
+
     private func loadAllItemsFromDataBase() throws {
         guard let base = database else { return }
         todoItems.removeAll()
@@ -150,7 +141,7 @@ final class FileCacheSQLite: FileCacheDBService {
             }
         }
     }
-    
+
     private func saveIntoDatabase(items: [TodoItem], completion: ([TodoItem]) -> Void) throws {
         guard let base = database else { return }
         try loadAllItemsFromDataBase()
@@ -159,9 +150,9 @@ final class FileCacheSQLite: FileCacheDBService {
         let itemsToDelete = todoItemsTable.filter(!itemsIds.contains(id))
         let itemsToInsert = items.filter({!dbItemsIds.contains($0.id)})
         let itemsToReplace = items.filter({dbItemsIds.contains($0.id)})
-        
+
         try base.run(itemsToDelete.delete())
-        
+
         for item in itemsToInsert {
             try insertIntoDatabase(item: item)
         }
@@ -171,15 +162,15 @@ final class FileCacheSQLite: FileCacheDBService {
         todoItems = items
         completion(items)
     }
-    
-    //можно использовать любой из этих методов
-    
+
+    // можно использовать любой из этих методов
+
     //    private func insertIntoDatabase(item: TodoItem) throws {
     //        guard let base = database else { return }
     //        try base.run(item.sqlInsertStatement)
     //        todoItems.append(item)
     //    }
-    
+
     private func insertIntoDatabase(item: TodoItem) throws {
         guard let base = database else { return }
         let insert = todoItemsTable.insert(id <- item.id,
@@ -192,7 +183,7 @@ final class FileCacheSQLite: FileCacheDBService {
         try base.run(insert)
         todoItems.append(item)
     }
-    
+
     private func replaceIntoDatabase(item: TodoItem) throws {
         guard let base = database else { return }
         let insert = todoItemsTable.insert(or: .replace,
@@ -207,7 +198,7 @@ final class FileCacheSQLite: FileCacheDBService {
         todoItems.removeAll(where: { $0.id == item.id })
         todoItems.append(item)
     }
-    
+
     private func deleteFromDatabase(_ id: String) throws {
         guard let base = database else { return }
         let todoItem = todoItemsTable.filter(self.id == id)
@@ -215,6 +206,3 @@ final class FileCacheSQLite: FileCacheDBService {
         todoItems.removeAll(where: { $0.id == id })
     }
 }
-
-
-

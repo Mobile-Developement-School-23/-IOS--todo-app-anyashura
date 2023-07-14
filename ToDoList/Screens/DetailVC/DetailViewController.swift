@@ -211,7 +211,7 @@ class DetailViewController: UIViewController {
     }
 }
 
-// MARK: - Private methods
+// MARK: - Methods
 
 extension DetailViewController {
 
@@ -371,7 +371,7 @@ extension DetailViewController: DeadLineViewDelegate {
         }
     }
 
-     func dateButtonTapped() {
+    func dateButtonTapped() {
 
         if datePicker.isHidden {
             UIView.animate(withDuration: Double(0.3), animations: {

@@ -12,7 +12,6 @@
 		B50CED4D2A582F1F00F12621 /* FileCaheModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CED4C2A582F1F00F12621 /* FileCaheModel.swift */; };
 		B53A737C2A4FB1DD00FC8EAF /* AnimationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53A737B2A4FB1DD00FC8EAF /* AnimationPresenter.swift */; };
 		B53DDBB72A54B05800D9F615 /* Extension+URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DDBB62A54B05800D9F615 /* Extension+URLSession.swift */; };
-		B53DDBBB2A5588A100D9F615 /* FileCacheProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53DDBBA2A5588A100D9F615 /* FileCacheProtocol.swift */; };
 		B5604CC72A4DB0590068B3BD /* isDoneCircleControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5604CC62A4DB0590068B3BD /* isDoneCircleControl.swift */; };
 		B561433A2A460D030041AE45 /* DividedLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56143392A460D030041AE45 /* DividedLineView.swift */; };
 		B579860F2A4998A100FD742F /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B579860E2A4998A100FD742F /* TodoListViewController.swift */; };
@@ -28,6 +27,7 @@
 		B58189B92A4301850047289F /* Extension+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58189B82A4301850047289F /* Extension+Color.swift */; };
 		B58189BB2A4305EB0047289F /* Extension+Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58189BA2A4305EB0047289F /* Extension+Font.swift */; };
 		B58189BF2A439BFC0047289F /* ConstantsText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58189BE2A439BFC0047289F /* ConstantsText.swift */; };
+		B5A46F332A61FA2E0015BF11 /* FileCacheProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A46F322A61FA2E0015BF11 /* FileCacheProtocol.swift */; };
 		B5A9374D2A5F00040055724C /* FileCacheSQLite.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A9374C2A5F00040055724C /* FileCacheSQLite.swift */; };
 		B5A9374F2A5F035E0055724C /* FileCacheSQLiteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A9374E2A5F035E0055724C /* FileCacheSQLiteService.swift */; };
 		B5A937522A60A07B0055724C /* TodoItemModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B5A937502A60A07B0055724C /* TodoItemModel.xcdatamodeld */; };
@@ -80,7 +80,6 @@
 		B50CED4C2A582F1F00F12621 /* FileCaheModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCaheModel.swift; sourceTree = "<group>"; };
 		B53A737B2A4FB1DD00FC8EAF /* AnimationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationPresenter.swift; sourceTree = "<group>"; };
 		B53DDBB62A54B05800D9F615 /* Extension+URLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+URLSession.swift"; sourceTree = "<group>"; };
-		B53DDBBA2A5588A100D9F615 /* FileCacheProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FileCacheProtocol.swift; path = ../../../../.Trash/FileCacheProtocol.swift; sourceTree = "<group>"; };
 		B5604CC62A4DB0590068B3BD /* isDoneCircleControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = isDoneCircleControl.swift; sourceTree = "<group>"; };
 		B56143392A460D030041AE45 /* DividedLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DividedLineView.swift; sourceTree = "<group>"; };
 		B579860E2A4998A100FD742F /* TodoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewController.swift; sourceTree = "<group>"; };
@@ -96,6 +95,7 @@
 		B58189B82A4301850047289F /* Extension+Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+Color.swift"; sourceTree = "<group>"; };
 		B58189BA2A4305EB0047289F /* Extension+Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+Font.swift"; sourceTree = "<group>"; };
 		B58189BE2A439BFC0047289F /* ConstantsText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsText.swift; sourceTree = "<group>"; };
+		B5A46F322A61FA2E0015BF11 /* FileCacheProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileCacheProtocol.swift; sourceTree = "<group>"; };
 		B5A9374C2A5F00040055724C /* FileCacheSQLite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheSQLite.swift; sourceTree = "<group>"; };
 		B5A9374E2A5F035E0055724C /* FileCacheSQLiteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheSQLiteService.swift; sourceTree = "<group>"; };
 		B5A937512A60A07B0055724C /* TodoItemModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TodoItemModel.xcdatamodel; sourceTree = "<group>"; };
@@ -188,7 +188,7 @@
 		B50FA1D62A3D787D00BCEB1C /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				B53DDBBA2A5588A100D9F615 /* FileCacheProtocol.swift */,
+				B5A46F322A61FA2E0015BF11 /* FileCacheProtocol.swift */,
 				B50CED4C2A582F1F00F12621 /* FileCaheModel.swift */,
 				B5A9375D2A61659E0055724C /* CoreData */,
 				B5A9376C2A6171250055724C /* SQLite */,
@@ -637,7 +637,6 @@
 				B5A937682A616EC30055724C /* TodoItemEntity+CoreDataClass.swift in Sources */,
 				B50CED4D2A582F1F00F12621 /* FileCaheModel.swift in Sources */,
 				B5DC31B02A4EF4FE00FCF5F8 /* TodoItemViewModel.swift in Sources */,
-				B53DDBBB2A5588A100D9F615 /* FileCacheProtocol.swift in Sources */,
 				B5AC0F552A35FB5A00B1FE5A /* AppDelegate.swift in Sources */,
 				B58189B92A4301850047289F /* Extension+Color.swift in Sources */,
 				B5A9374D2A5F00040055724C /* FileCacheSQLite.swift in Sources */,
@@ -655,6 +654,7 @@
 				B561433A2A460D030041AE45 /* DividedLineView.swift in Sources */,
 				B58189A82A423AA10047289F /* ImportanceView.swift in Sources */,
 				B5A937522A60A07B0055724C /* TodoItemModel.xcdatamodeld in Sources */,
+				B5A46F332A61FA2E0015BF11 /* FileCacheProtocol.swift in Sources */,
 				B58189AE2A42ABAD0047289F /* Extension+Date.swift in Sources */,
 				B58189BB2A4305EB0047289F /* Extension+Font.swift in Sources */,
 				B53A737C2A4FB1DD00FC8EAF /* AnimationPresenter.swift in Sources */,

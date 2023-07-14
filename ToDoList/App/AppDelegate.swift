@@ -38,5 +38,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         DDLog.add(fileLogger)
     }
 }
-
-

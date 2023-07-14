@@ -21,6 +21,6 @@ final class CoreDataContainer {
         })
         return container
     }()
-    
+
     lazy var context: NSManagedObjectContext = persistentContainer.viewContext
 }
