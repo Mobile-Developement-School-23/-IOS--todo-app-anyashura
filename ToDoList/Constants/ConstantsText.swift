@@ -19,7 +19,7 @@ enum ConstantsText {
     static let low = "Низкая"
     static let basic = "Обычная"
     static let important = "Высокая"
-    static let myTasks = "Мои дела"
+    static let myTasks = "ᅠ   Мои дела"
     static let show = "Показать"
     static let hide = "Скрыть"
     static let new = "Новое"
